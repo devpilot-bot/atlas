@@ -1,8 +1,8 @@
 <!--
 Thanks for the PR. Please read CONTRIBUTING.md if you haven't already.
 
-Target `main`. The PR is squash-merged, so its title becomes the commit
-message: write it as a Conventional Commit, e.g.
+Target `main`. The PR is merged with a merge commit titled with the PR
+title: write it as a Conventional Commit, e.g.
 `fix(terminal): keep the close button clickable while dragging`.
 See CONTRIBUTING.md's "Branching model" section.
 -->

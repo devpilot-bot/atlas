@@ -3,9 +3,10 @@ name: Release
 # How a release happens (CONTRIBUTING.md → "Releasing" has the picture):
 #
 # 1. Every push to `main` runs release-please. It keeps one open pull request,
-#    "chore: release X.Y.Z". The version comes from the Conventional Commit
-#    titles merged since the last release (pre-1.0: any `feat` → minor, only
-#    `fix`/`perf` → patch), and CHANGELOG.md in the same PR lists them.
+#    "chore: release X.Y.Z". The version comes from the Conventional Commits
+#    on `main` since the last release: each merge commit (titled with its PR
+#    title) and the branch commits it brings in (pre-1.0: any `feat` → minor,
+#    only `fix`/`perf` → patch), and CHANGELOG.md in the same PR lists them.
 # 2. release-please moves package.json only. `sync-version` runs
 #    scripts/bump.sh on the PR branch for the other three version files, then
 #    starts CI on it: a push made with GITHUB_TOKEN starts no workflow, and the

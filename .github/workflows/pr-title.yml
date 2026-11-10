@@ -1,8 +1,8 @@
 name: PR title
 
-# Pull requests are squash-merged, so the title becomes the one commit on
-# `main`, and release-please reads those commits to pick the next version and
-# write CHANGELOG.md (see release.yml). This check holds the title to
+# Pull requests are merged with a merge commit titled with the PR title (repo
+# setting), and release-please reads the commits on `main` to pick the next
+# version and write CHANGELOG.md (see release.yml). This check holds the title to
 # Conventional Commits: `feat(scope): …`, `fix: …`, `chore!: …`.
 #
 # `pull_request_target`, so a fork's PR is checked without a maintainer first

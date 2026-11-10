@@ -160,21 +160,22 @@ Two words this section leans on:
 ### The life of a pull request
 
 ```
-  1. branch off main          2. work, push, open a PR      3. squash-merge
+  1. branch off main          2. work, push, open a PR      3. merge (a merge commit)
                                                               (branch is deleted)
   main ──●──●                     you/fix-sidebar
-            └──► you/fix-sidebar   ●──●──●──●  ──► PR ──►  main ──●──●──●──■
-                                   wip  typo  …                       ▲
-                                                                      │
-                                              one commit on main, titled with
+            └──► you/fix-sidebar   ●──●──●──●  ──► PR ──►  main ──●─────────■
+                                                                   \       /
+                                               your commits, kept   ●──●──●
+                                                                            ▲
+                                              a merge commit, titled with
                                               the PR title: "fix(sidebar): …"
 ```
 
 1. Branch from `main`: `<you>/<short-slug>`, or the name Linear's **copy git branch name** gives you.
 2. Push and open a PR against `main`. Keep it to days, not weeks: a long-lived branch drifts away from everyone else's work.
-3. When CI passes and it's reviewed, it is **squash-merged**: the whole PR becomes one commit on `main`, and GitHub deletes the branch.
+3. When CI passes and it's reviewed, it is **merged with a merge commit**: your commits land on `main` as they are, joined by one merge commit, and GitHub deletes the branch. PRs are not squashed.
 
-**Squash-merging means the PR title is the commit message**, so the title follows [Conventional Commits](https://www.conventionalcommits.org/). The commits inside your branch can say anything, since they never reach `main`. A check on every PR holds the title to this shape:
+**The merge commit is titled with the PR title**, so the title follows [Conventional Commits](https://www.conventionalcommits.org/). Your branch's commits reach `main` too, and release-please reads every commit there: one written in Conventional form (`fix: …`) becomes a changelog entry of its own, next to the PR's. A check on every PR holds the title to this shape:
 
 ```
   type(scope): what changed, in the present tense
@@ -250,7 +251,7 @@ Sometimes a shipped version needs a fix while `main` already holds work that isn
 2. `git checkout -b release/0.6 alpha-0.6.0`, then `git cherry-pick <the fix's commit>`. A cherry-pick copies one commit onto another branch.
 3. `bun run bump 0.6.1`, commit, open a PR into `release/0.6` and merge it.
 4. Tag that commit `alpha-0.6.1` and push the tag. A tag pushed by a person starts `release-linux.yml`, which builds Linux and creates the GitHub release; build macOS and Windows by hand (see **Releasing**).
-5. Tell the release PR on `main` that 0.6.1 is taken: the next PR merged into `main` carries a line `Release-As: 0.6.2` (or `0.7.0`) in its description. Squash-merging keeps the description in the commit, and release-please reads it. Without this it would propose 0.6.1 again, and the updater ignores a number it has already seen.
+5. Tell the release PR on `main` that 0.6.1 is taken: the next PR merged into `main` carries a line `Release-As: 0.6.2` (or `0.7.0`) in its description. The merge commit carries the description as its body (a repository setting), and release-please reads it. Without this it would propose 0.6.1 again, and the updater ignores a number it has already seen.
 
 The `release/X.Y` branch is never merged back. `main` already has the fix.
 

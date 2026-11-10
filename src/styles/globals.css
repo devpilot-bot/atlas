@@ -727,10 +727,16 @@
        alone desyncs the gutter, leaving line numbers stranded at the top
        while text sits further down. Keep them at the editor root, and in
        step with the metrics in `themes/build-cm-theme.ts`. */
-    font-family: var(--font-mono);
     /* `editorFontSize`; the 20/13 line height scales with it. */
     font-size: var(--atlas-editor-font-size, 13px);
     line-height: calc(var(--atlas-editor-font-size, 13px) * 20 / 13);
+  }
+  /* The font sits on the scroller, not the editor root: CodeMirror's base
+     theme sets `font-family: monospace` on `.cm-scroller`, which cuts off
+     anything inherited from above, so the code font setting and the
+     theme's `font-mono` only reach the text from here (`build-cm-theme.ts`). */
+  .cm-scroller {
+    font-family: var(--font-mono);
   }
   .cm-content {
     color: var(--editor-foreground, #d4d4d4);

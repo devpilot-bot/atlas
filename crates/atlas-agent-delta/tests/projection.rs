@@ -1601,6 +1601,35 @@ fn open_permission(harness: &Harness, call_id: &str) {
     harness.pump();
 }
 
+/// The status a snapshot reports is the one the live stream reports. A session
+/// waiting on a permission prompt is Waiting, not Running: the frontend adopts
+/// the snapshot's status when a session is switched back to, and the stream
+/// only sends a status when it changes, so a wrong one here stays on screen.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_session_waiting_on_a_prompt_reports_waiting() {
+    let harness = Harness::start();
+    assert_eq!(
+        atlas_agent_delta::project::session_status(&lock(&harness.thread)),
+        atlas_agent_delta::SessionStatus::Idle,
+        "a thread with nothing open is idle"
+    );
+
+    lock(&harness.thread).begin_turn();
+    assert_eq!(
+        atlas_agent_delta::project::session_status(&lock(&harness.thread)),
+        atlas_agent_delta::SessionStatus::Running,
+        "an open turn with nothing asked of the user is running"
+    );
+
+    open_permission(&harness, "call-1");
+
+    assert_eq!(
+        atlas_agent_delta::project::session_status(&lock(&harness.thread)),
+        atlas_agent_delta::SessionStatus::Waiting,
+        "a prompt waiting on the user outranks the running turn"
+    );
+}
+
 /// Regression, ATL-225 finding 1. `permissions` and `elicitations` are keyed by
 /// wire request id and had no removal anywhere in the file. The projector is a
 /// process-lifetime Tauri singleton, so every prompt the app had ever shown

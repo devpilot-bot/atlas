@@ -12,9 +12,36 @@ use atlas_acp_thread::{
     ToolCall as ThreadToolCall, ToolCallContent, ToolCallStatus as ThreadToolCallStatus,
 };
 use atlas_agent_wire::{
-    Message, MessageImage, MessageMode, MessageRole, PlanEntry, Subagent, SubagentStatus, ToolCall,
-    ToolCallStatus, ToolContentBlock,
+    Message, MessageImage, MessageMode, MessageRole, PlanEntry, SessionStatus, Subagent,
+    SubagentStatus, ToolCall, ToolCallStatus, ToolContentBlock,
 };
+
+/// The session's status as the wire states it, from the stream and from a
+/// snapshot alike. They used to be worked out in two places that disagreed: a
+/// snapshot never said Waiting, so a session switched back to while a
+/// permission prompt was open showed as Running, and the stream (which only
+/// sends a status when it changes) never corrected it.
+///
+/// A prompt waiting on the user wins over everything: the turn is open, but it
+/// is the user who has to act.
+pub fn session_status(thread: &atlas_acp_thread::AcpThread) -> SessionStatus {
+    let waiting = thread.entries().iter().any(|entry| {
+        matches!(
+            entry,
+            AgentThreadEntry::ToolCall(call)
+                if matches!(call.status, ThreadToolCallStatus::WaitingForConfirmation { .. })
+        )
+    });
+    if waiting {
+        SessionStatus::Waiting
+    } else if thread.is_generating() {
+        SessionStatus::Running
+    } else if thread.had_error() {
+        SessionStatus::Error
+    } else {
+        SessionStatus::Idle
+    }
+}
 
 /// One run of same-kind chunks inside an assistant entry.
 ///

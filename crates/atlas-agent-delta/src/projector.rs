@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use agent_client_protocol::schema::v1 as acp;
 use atlas_acp_thread::{
     AcpThread, AcpThreadEvent, AcpThreadHandle, AgentThreadEntry, ElicitationEntryId, EventStream,
-    LoadError, TerminalAppend, ToolCallStatus as ThreadToolCallStatus,
+    LoadError, TerminalAppend,
 };
 use atlas_agent_servers::ThreadEventSink;
 use atlas_agent_wire::{
@@ -1794,23 +1794,7 @@ impl SessionProjection {
     }
 
     fn current_status(&self) -> SessionStatus {
-        let thread = lock_thread(&self.thread);
-        let waiting = thread.entries().iter().any(|entry| {
-            matches!(
-                entry,
-                AgentThreadEntry::ToolCall(call)
-                    if matches!(call.status, ThreadToolCallStatus::WaitingForConfirmation { .. })
-            )
-        });
-        if waiting {
-            SessionStatus::Waiting
-        } else if thread.is_generating() {
-            SessionStatus::Running
-        } else if thread.had_error() {
-            SessionStatus::Error
-        } else {
-            SessionStatus::Idle
-        }
+        project::session_status(&lock_thread(&self.thread))
     }
 }
 

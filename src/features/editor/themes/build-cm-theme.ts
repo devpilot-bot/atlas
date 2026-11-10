@@ -109,8 +109,6 @@ export function buildEditorChromeTheme(theme: ResolvedTheme | null): Extension {
         backgroundColor: c.bg,
         color: c.fg,
         height: "100%",
-        // The theme owns the mono stack; the package's `tokens.css` has the fallback chain.
-        fontFamily: "var(--font-mono)",
         fontSize: EDITOR_FONT_SIZE,
         lineHeight: EDITOR_LINE_HEIGHT,
       },
@@ -157,6 +155,14 @@ export function buildEditorChromeTheme(theme: ResolvedTheme | null): Extension {
         outline: "none",
       },
       ".cm-scroller": {
+        // The font goes HERE, not on `&`: CodeMirror's base theme declares
+        // `font-family: monospace` on `.cm-scroller` itself, and a property
+        // declared on an element beats anything it would inherit, so a stack
+        // set on the editor root never reaches the content or the gutters —
+        // `codeFontFamily` and the theme's `font-mono` both went unseen.
+        // The theme owns the mono stack; the package's `tokens.css` has the
+        // fallback chain. `globals.css` mirrors this rule.
+        fontFamily: "var(--font-mono)",
         overflow: "auto",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": { display: "none" },

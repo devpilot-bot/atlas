@@ -181,6 +181,15 @@ export const PROVIDERS: ProviderDef[] = [
     placeholder: "free",
     chat: true,
   },
+  {
+    id: "runcrate",
+    name: "Runcrate",
+    env: "RUNCRATE_API_KEY",
+    category: "Inference",
+    docsUrl: "https://www.runcrate.ai/dashboard/api-keys",
+    placeholder: "rc_live_...",
+    chat: true,
+  },
 
   // ── Gateways / proxies ───────────────────────────────────────────
   {
@@ -208,6 +217,22 @@ export const PROVIDERS: ProviderDef[] = [
     category: "Gateway",
     docsUrl: "https://cheaperinference.com/signup",
     placeholder: "ci_live_...",
+    chat: true,
+  },
+  {
+    id: "opper",
+    name: "Opper",
+    env: "OPPER_API_KEY",
+    category: "Gateway",
+    docsUrl: "https://platform.opper.ai",
+    chat: true,
+  },
+  {
+    id: "standardcompute",
+    name: "Standard Compute",
+    env: "STANDARDCOMPUTE_API_KEY",
+    category: "Gateway",
+    docsUrl: "https://standardcompute.com",
     chat: true,
   },
   {

@@ -74,6 +74,27 @@ const NEEDS: ProviderNeed[] = [
     phrases: ["cheaper inference api key", "cheaperinference api key"],
   },
   {
+    provider: "runcrate",
+    label: "Runcrate",
+    consoleHint: "runcrate.ai/dashboard/api-keys",
+    envVars: ["RUNCRATE_API_KEY"],
+    phrases: ["runcrate api key"],
+  },
+  {
+    provider: "opper",
+    label: "Opper",
+    consoleHint: "platform.opper.ai",
+    envVars: ["OPPER_API_KEY"],
+    phrases: ["opper api key"],
+  },
+  {
+    provider: "standardcompute",
+    label: "Standard Compute",
+    consoleHint: "standardcompute.com",
+    envVars: ["STANDARDCOMPUTE_API_KEY"],
+    phrases: ["standard compute api key", "standardcompute api key"],
+  },
+  {
     provider: "xai",
     label: "xAI",
     consoleHint: "console.x.ai",

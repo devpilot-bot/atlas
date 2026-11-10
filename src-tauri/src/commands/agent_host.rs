@@ -1698,13 +1698,7 @@ impl AgentHost {
         );
 
         let thread = lock_thread(&handle);
-        let status = if thread.had_error() {
-            SessionStatus::Error
-        } else if thread.is_generating() {
-            SessionStatus::Running
-        } else {
-            SessionStatus::Idle
-        };
+        let status = project::session_status(&thread);
         let usage = thread
             .token_usage()
             .map(|usage| Usage {

@@ -129,8 +129,7 @@ jobs:
             xvfb \
             meson \
             ninja-build \
-            libcap-dev \
-            clang-15
+            libcap-dev
 
       # Bun, Node and Rust at the versions mise.toml and rust-toolchain.toml
       # pin: a release is built with exactly what CI tested.
@@ -219,15 +218,26 @@ jobs:
       # same way; GCC 13 (CI's ubuntu-24.04-arm, which builds it) changed the
       # region to `+nothing+dotprod`. Jammy has no GCC 13, and a PPA's g++-13
       # would raise the libstdc++ floor above the 12.x that Ubuntu 22.04 and
-      # Debian 12 ship, which Verify would refuse. Clang 15 is in jammy for
-      # arm64, takes numkong's `#pragma clang attribute` path (the one the
-      # macOS build already proves), and links the system libstdc++ 12, so
-      # the floor stands. x86-64 stays on the runner's GCC, which builds it.
-      - name: Use Clang for native dependencies on aarch64
+      # Debian 12 ship, which package-linux.sh's libstdc++ check would refuse.
+      #
+      # Clang takes numkong's `#pragma clang attribute` path (the one the
+      # macOS build already proves), but not jammy's own Clang 15: its
+      # arm_sve.h refuses to be included without +sve (numkong includes it
+      # whenever its SVE probe passes), and its arm_neon.h hides the fp16
+      # and dot-product intrinsics from a `#pragma clang attribute` target
+      # region, so they come out implicitly declared as `int`. Clang 18 from
+      # LLVM's own apt repository builds numkong 7.8.6 with every probe on,
+      # and its jammy packages link the system libstdc++ 12, so the floor
+      # stands. x86-64 stays on the runner's GCC, which builds it.
+      - name: Use Clang 18 for native dependencies on aarch64
         if: matrix.arch == 'aarch64'
         run: |
-          echo "CC=clang-15" >> "$GITHUB_ENV"
-          echo "CXX=clang++-15" >> "$GITHUB_ENV"
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
+          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" | sudo tee /etc/apt/sources.list.d/llvm-18.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-18
+          echo "CC=clang-18" >> "$GITHUB_ENV"
+          echo "CXX=clang++-18" >> "$GITHUB_ENV"
 
       - name: Build frontend, binary and AppImage
         env:

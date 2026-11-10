@@ -596,6 +596,24 @@ mod tests {
             .unwrap();
     }
 
+    /// What a launch that has exited leaves behind: its directory, a token
+    /// file, and a lock file nobody holds. Built by hand rather than by
+    /// dropping a [`TokenFiles`]: a flock belongs to the open file, and a
+    /// process another test spawns while the lock is open inherits it until
+    /// it execs, so a dropped launch can still read as running when the sweep
+    /// looks (about one run in six under concurrent spawning).
+    fn ended_launch(
+        root: &std::path::Path,
+        name: &str,
+    ) -> (std::path::PathBuf, std::path::PathBuf) {
+        let dir = root.join(name);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join(LOCK_FILE), "").unwrap();
+        let file = dir.join("token");
+        std::fs::write(&file, name).unwrap();
+        (dir, file)
+    }
+
     /// A running launch's directory is never swept, however long since it
     /// last wrote; an ended one's is, once untouched for [`STALE_LAUNCH`];
     /// an ended one written recently is not yet.
@@ -606,14 +624,9 @@ mod tests {
         let running = TokenFiles::new(root.clone());
         let running_file = running.write("r", |_| true).unwrap();
         age(&running.dir.join(LOCK_FILE));
-        let ended = TokenFiles::new(root.clone());
-        let ended_file = ended.write("e", |_| true).unwrap();
-        let ended_dir = ended.dir.clone();
-        drop(ended);
+        let (ended_dir, ended_file) = ended_launch(&root, "ended");
         age(&ended_dir.join(LOCK_FILE));
-        let recent = TokenFiles::new(root.clone());
-        let recent_file = recent.write("n", |_| true).unwrap();
-        drop(recent);
+        let (_, recent_file) = ended_launch(&root, "recent");
 
         let starting = TokenFiles::new(root);
         starting.sweep_stale_launches();

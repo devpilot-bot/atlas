@@ -95,6 +95,13 @@ const NEEDS: ProviderNeed[] = [
     phrases: ["standard compute api key", "standardcompute api key"],
   },
   {
+    provider: "uberllm",
+    label: "UberLLM",
+    consoleHint: "uberllm.dev/signup",
+    envVars: ["UBERLLM_API_KEY"],
+    phrases: ["uberllm api key"],
+  },
+  {
     provider: "xai",
     label: "xAI",
     consoleHint: "console.x.ai",

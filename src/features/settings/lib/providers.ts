@@ -236,6 +236,15 @@ export const PROVIDERS: ProviderDef[] = [
     chat: true,
   },
   {
+    id: "uberllm",
+    name: "UberLLM",
+    env: "UBERLLM_API_KEY",
+    category: "Gateway",
+    docsUrl: "https://uberllm.dev/signup",
+    placeholder: "ull_...",
+    chat: true,
+  },
+  {
     id: "litellm",
     name: "LiteLLM Proxy",
     env: "LITELLM_API_KEY",

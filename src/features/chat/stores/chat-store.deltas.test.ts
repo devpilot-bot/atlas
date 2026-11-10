@@ -1151,3 +1151,54 @@ describe("applyAgentDelta: slept_mid_turn", () => {
     expect(last().interruption?.outcome).toBe("disconnected");
   });
 });
+
+// A call's first sighting is decided against the state the batch STARTED from
+// (`isNewToolCall`), which is blind to what the batch itself has added. Each
+// case here is one frame's batch in which the same id shows up twice: read as
+// new both times, the call would be appended twice.
+describe("applyAgentBatch: a tool call seen twice in one frame", () => {
+  const batch = (...deltas: AgentDelta[]) =>
+    useChatStore.getState().actions.applyAgentBatch({ texts: [], thoughts: [], deltas });
+  const calls = () => messages().flatMap((m) => m.toolCalls);
+
+  beforeEach(() => boundTab());
+
+  it("updates the call it just appended", () => {
+    batch(
+      d("tool_call_upserted", { message_id: "t", tool_call: wireTool("tc1") }),
+      d("tool_call_upserted", {
+        message_id: "t",
+        tool_call: wireTool("tc1", { status: "completed", result: "ok" }),
+      }),
+    );
+    expect(calls()).toHaveLength(1);
+    expect(calls()[0]).toMatchObject({ status: "completed", result: "ok" });
+  });
+
+  it("updates a call that arrived inside an appended message", () => {
+    batch(
+      d("message_appended", {
+        message: wireMessage({ id: "m1", mode: "tool", tool_calls: [wireTool("tc1")] }),
+      }),
+      d("tool_call_upserted", {
+        message_id: "m1",
+        tool_call: wireTool("tc1", { status: "completed", result: "ok" }),
+      }),
+    );
+    expect(calls()).toHaveLength(1);
+    expect(calls()[0]).toMatchObject({ status: "completed", result: "ok" });
+  });
+
+  it("updates a call from an earlier frame, and appends one that is new", () => {
+    batch(d("tool_call_upserted", { message_id: "t", tool_call: wireTool("tc1") }));
+    batch(
+      d("tool_call_upserted", {
+        message_id: "t",
+        tool_call: wireTool("tc1", { status: "completed", result: "ok" }),
+      }),
+      d("tool_call_upserted", { message_id: "t", tool_call: wireTool("tc2") }),
+    );
+    expect(calls().map((tc) => tc.id)).toEqual(["tc1", "tc2"]);
+    expect(calls()[0]).toMatchObject({ status: "completed", result: "ok" });
+  });
+});

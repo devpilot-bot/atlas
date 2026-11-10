@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { agents } from "../lib/agents-api";
 import type { InjectedPrompt } from "../lib/injected-prompt";
+import { isDraft, original } from "immer";
 import { immer } from "zustand/middleware/immer";
 import { createSelectors } from "@/lib/create-selectors";
 import type {
@@ -891,6 +892,31 @@ function findToolCall(
     if (tc) return { msg: m, tc };
   }
   return null;
+}
+
+/**
+ * Whether this tool call id is certainly new to the session, answered without
+ * `findToolCall`'s scan.
+ *
+ * That scan runs on drafts, so proving an id ABSENT walks every message of the
+ * session through immer: a proxy per message, per `toolCalls` array and per
+ * call, all to be finalized again. It is the common case, too: every call's
+ * first sighting. The state the batch started from is plain frozen data: still
+ * one pass over the session's calls, but with nothing allocated and nothing
+ * for immer to finalize.
+ *
+ * `added` closes the gap between the two: the calls this batch has already
+ * appended, which the starting state cannot know about. The two deltas that
+ * add a call (`tool_call_upserted`, and `message_appended` for a message that
+ * arrives carrying some) both record it there, so "absent at the start and
+ * not added since" is exact. A third one must do the same. Anything this
+ * cannot vouch for answers false, and the caller scans as before.
+ */
+function isNewToolCall(session: ChatSession, toolCallId: string, added?: Set<string>): boolean {
+  if (!added || added.has(toolCallId) || !isDraft(session)) return false;
+  const before = original(session);
+  if (!before) return false;
+  return !before.messages.some((m) => m.toolCalls.some((t) => t.id === toolCallId));
 }
 
 /** Human-readable end-of-turn notice for a stop reason, or null when the
@@ -1942,8 +1968,9 @@ export const useChatStore = createSelectors(
             for (const { sessionId, text } of thoughts) {
               appendThoughtToDraft(s, sessionId, text);
             }
+            const addedToolCalls = new Set<string>();
             for (const env of deltas) {
-              applyDeltaToDraft(s, env);
+              applyDeltaToDraft(s, env, addedToolCalls);
             }
           }),
         setAcpBinding: (tabId, agentId, acpSessionId, cwd) =>
@@ -2024,7 +2051,7 @@ export const useChatStore = createSelectors(
           }),
         applyAgentDelta: (env) =>
           set((s) => {
-            applyDeltaToDraft(s, env);
+            applyDeltaToDraft(s, env, new Set());
           }),
         setAgentStartingStatus: (pluginId, status) =>
           set((s) => {
@@ -2243,7 +2270,7 @@ function isStaleTurn(session: ChatSession, turnSeq: number | undefined): boolean
   return turnSeq < (session.currentTurnSeq ?? 0);
 }
 
-function applyDeltaToDraft(s: ChatDraft, env: AgentDelta): void {
+function applyDeltaToDraft(s: ChatDraft, env: AgentDelta, addedToolCalls?: Set<string>): void {
   const tid = findTabByAcpSession(s.sessions, env.session_id);
   if (!tid) return;
   const session = s.sessions[tid];
@@ -2617,6 +2644,7 @@ function applyDeltaToDraft(s: ChatDraft, env: AgentDelta): void {
       // Rust already decided this is a new message; the frontend
       // mirrors without re-deciding.
       const m = env.message;
+      for (const tc of m.tool_calls) addedToolCalls?.add(tc.id);
       const appended: ChatMessage = {
         id: m.id,
         role: m.role,
@@ -2674,7 +2702,9 @@ function applyDeltaToDraft(s: ChatDraft, env: AgentDelta): void {
       } else if (session.inflightToolIds) {
         delete session.inflightToolIds[env.tool_call.id];
       }
-      const found = findToolCall(session, env.tool_call.id);
+      const found = isNewToolCall(session, env.tool_call.id, addedToolCalls)
+        ? null
+        : findToolCall(session, env.tool_call.id);
       if (found) {
         // Rust's start never moves across the pending→running→completed
         // updates for one call, and `toChatToolCall` carries a time only when
@@ -2689,6 +2719,7 @@ function applyDeltaToDraft(s: ChatDraft, env: AgentDelta): void {
       // IPC hop.
       const fresh = toChatToolCall(env.tool_call);
       fresh.startedAt ??= Date.now();
+      addedToolCalls?.add(fresh.id);
       // Collapse consecutive tool calls into ONE assistant message
       // so the thread doesn't render N separate message-item boxes
       // (each with its own padding) for every Find/Read/Bash the

@@ -1101,13 +1101,23 @@ impl SessionProjection {
                 deltas
             }
             AcpThreadEvent::EntryUpdated(ix) => {
+                let known = self.entries.len();
                 let mut deltas = self.sync_entries();
                 let mut updated = self.update_entry(ix);
                 if lock_thread(&self.thread).entry_time_approximate(ix) {
                     mark_time_approximate(&mut updated);
                 }
                 deltas.extend(updated);
-                deltas.extend(self.sync_subagents());
+                // Subagents are derived from tool calls alone, and deriving
+                // them walks the whole thread. This arm runs once per streamed
+                // chunk, so a text or thought chunk skips the walk: it cannot
+                // have changed one. An entry that arrived with this event may
+                // be a tool call, so that still syncs.
+                if self.entries.len() != known
+                    || matches!(self.entries.get(ix), Some(Projected::ToolCall { .. }))
+                {
+                    deltas.extend(self.sync_subagents());
+                }
                 deltas
             }
             AcpThreadEvent::EntriesRemoved(range) => {

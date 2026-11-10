@@ -23,7 +23,6 @@ export const JumpToBottomPill = memo(function JumpToBottomPill({
       <button
         onClick={onClick}
         title="Jump to latest"
-        style={{ backdropFilter: "blur(4px)" }}
         className={cn(
           "pointer-events-auto atlas-pill-in inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full",
           "border border-[var(--border)] bg-[var(--card)]",

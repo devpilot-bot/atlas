@@ -1127,7 +1127,7 @@ export function projectRows(
  * One turn's slice of a projection, and what it was projected from — the
  * inputs `segmentHolds` checks before handing it back unchanged.
  */
-interface Segment {
+export interface Segment {
   /** The turn's first message id. */
   id: string;
   /** The messages it was projected from, by identity. */

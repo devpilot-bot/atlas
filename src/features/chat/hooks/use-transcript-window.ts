@@ -11,7 +11,6 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -112,7 +111,6 @@ export interface TranscriptWindow {
   setStartIndex: Dispatch<SetStateAction<number>>;
   /** `startIndex`, corrected for a projection that shrank. Render from this. */
   safeStart: number;
-  visible: Row[];
   /** Content below the viewport (the jump pill and the bottom fade). */
   more: boolean;
   onScroll: () => void;
@@ -157,7 +155,6 @@ export function useTranscriptWindow({
   const windowFloor = Math.max(0, rows.length - WINDOW_INITIAL);
   const stale = startIndex > windowFloor;
   const safeStart = stale ? windowFloor : startIndex;
-  const visible = useMemo(() => rows.slice(safeStart), [rows, safeStart]);
   const canGrow = safeStart > 0;
 
   // Fold the correction back into state. Rendering from `safeStart` alone
@@ -534,7 +531,6 @@ export function useTranscriptWindow({
   return {
     setStartIndex,
     safeStart,
-    visible,
     more,
     onScroll,
     pendingAnchorRef,

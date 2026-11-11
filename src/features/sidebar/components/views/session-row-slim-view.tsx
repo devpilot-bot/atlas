@@ -15,6 +15,7 @@ import {
 import { SessionHoverCardPopup } from "../session-hover-card";
 import {
   RowTitle,
+  RowPressTarget,
   rowSurfaceClassName,
   stopThen,
   type SessionRowViewProps,
@@ -30,28 +31,31 @@ export function SessionRowSlimView(props: SessionRowSlimViewProps) {
   const settled = session.settledAt !== null;
   const snoozed = session.snoozedUntil !== null;
   return (
-    <li data-session-row={session.threadId} className="list-none">
+    <div role="listitem" data-session-row={session.threadId}>
       <TooltipPrimitive.Root disabled={props.hoverCardDisabled}>
         <TooltipPrimitive.Trigger
           render={
+            // The pointer's surface; the button is `RowPressTarget`, under
+            // the content (see there). The content is `relative` to sit
+            // above it.
             <div
-              role="button"
-              tabIndex={0}
-              aria-label={props.accessibleLabel}
-              aria-current={props.isActive || undefined}
-              data-testid="sidebar-row-slim"
               className={cn(rowSurfaceClassName(props), "flex h-9 items-center gap-2.5 px-2.5")}
               onClick={props.surface.onClick}
               onDoubleClick={props.surface.onDoubleClick}
-              onKeyDown={props.surface.onKeyDown}
               onContextMenu={props.surface.onContextMenu}
             />
           }
         >
+          <RowPressTarget
+            label={props.accessibleLabel}
+            current={props.isActive}
+            testId="sidebar-row-slim"
+            onKeyDown={props.surface.onKeyDown}
+          />
           {isRenaming ? null : <span className="sr-only">{session.title}</span>}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-1 transition-opacity",
+              "relative flex shrink-0 items-center gap-1 transition-opacity",
               (!props.isActive || settled || snoozed) &&
                 "opacity-40 grayscale group-focus-within/sidebar-row:opacity-100 group-focus-within/sidebar-row:grayscale-0 group-hover/sidebar-row:opacity-100 group-hover/sidebar-row:grayscale-0",
             )}
@@ -69,7 +73,7 @@ export function SessionRowSlimView(props: SessionRowSlimViewProps) {
             onCommit={props.onCommitRename}
             onCancel={props.onCancelRename}
             className={cn(
-              "min-w-0 flex-1 truncate text-start text-sm transition-opacity group-focus-within/sidebar-row:text-foreground group-hover/sidebar-row:text-foreground motion-reduce:transition-none",
+              "relative min-w-0 flex-1 truncate text-start text-sm transition-opacity group-focus-within/sidebar-row:text-foreground group-hover/sidebar-row:text-foreground motion-reduce:transition-none",
               shouldRecede ? "font-normal" : "font-medium",
               shouldRecede
                 ? "text-secondary-foreground/70"
@@ -92,7 +96,7 @@ export function SessionRowSlimView(props: SessionRowSlimViewProps) {
                 <RelativeTime iso={settled ? session.settledAt : session.updatedAt} />
               </span>
             )}
-            <span className="pointer-events-none absolute inset-y-0 right-0 -mr-1 flex items-stretch opacity-0 transition-opacity has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 group-hover/sidebar-row:pointer-events-auto group-hover/sidebar-row:opacity-100">
+            <span className="absolute inset-y-0 right-0 -mr-1 flex items-stretch opacity-0 transition-opacity has-[:focus-visible]:opacity-100 group-hover/sidebar-row:opacity-100">
               {snoozed ? (
                 <Hint label="Wake session" side="top">
                   <button
@@ -132,6 +136,6 @@ export function SessionRowSlimView(props: SessionRowSlimViewProps) {
         </TooltipPrimitive.Trigger>
         <SessionHoverCardPopup session={session} status={status} />
       </TooltipPrimitive.Root>
-    </li>
+    </div>
   );
 }

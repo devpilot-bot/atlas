@@ -149,7 +149,7 @@ export function MessageRowView({
         ) : (
           // The gutter is never empty-looking on hover: a continuation
           // reveals its own time where the avatar would be.
-          <span className="hidden justify-end pr-0.5 pt-[3px] text-2xs tabular-nums leading-none text-disabled group-hover/msg:flex">
+          <span className="flex justify-end pr-0.5 pt-[3px] text-2xs tabular-nums leading-none text-disabled opacity-0 group-hover/msg:opacity-100 group-focus-within/msg:opacity-100">
             {formatClock(m.created_at)}
           </span>
         )}

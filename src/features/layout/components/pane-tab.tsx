@@ -191,77 +191,89 @@ export function PaneTab({
     ? { transform: drag.transform, transition: drag.transition }
     : undefined;
 
+  // The close button is the tab's sibling, not its child: a control inside
+  // a `role="tab"` is folded into the tab's name by the accessibility tree
+  // and cannot be pressed on its own. The wrapper carries what both share:
+  // the hover group, the drag handle and its transform.
   const chip = (
     <div
       ref={drag?.setNodeRef}
-      role="tab"
-      aria-selected={active}
-      tabIndex={tabStop ? 0 : -1}
-      title={filePath ?? undefined}
-      data-tab-id={tab.id}
-      data-active-tab={active || undefined}
+      role="presentation"
       {...drag?.listeners}
       style={style}
-      onClick={() => onSelect(tab.id)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") onSelect(tab.id);
-      }}
-      // Middle-click must not paste the primary selection on Linux, nor
-      // start an autoscroll elsewhere.
-      onMouseDown={(e) => {
-        if (e.button === 1) e.preventDefault();
-      }}
-      onAuxClick={(e) => {
-        if (e.button === 1 && tab.closable) {
-          e.preventDefault();
-          close();
-        }
-      }}
-      className={cn(
-        "group/tab flex h-6 max-w-44 shrink-0 cursor-pointer select-none items-center gap-1.5 rounded-md pr-2 pl-1 text-xs outline-none transition-colors",
-        active
-          ? focused
-            ? "bg-element-selected text-foreground"
-            : "bg-element-hover text-secondary-foreground"
-          : "text-muted-foreground hover:bg-element-hover hover:text-foreground",
-        // The tab being dragged rides over its neighbours as they make room.
-        drag?.dragging && "relative z-10 bg-element-selected text-foreground",
-      )}
+      className={cn("group/tab relative flex max-w-44 shrink-0", drag?.dragging && "z-10")}
     >
-      <span className="relative flex size-4 shrink-0 items-center justify-center">
-        <span
-          className={cn(
-            "flex items-center justify-center",
-            tab.closable && "group-hover/tab:invisible",
-          )}
-        >
-          {running ? (
-            <Loader2 size={14} className="animate-spin text-primary" />
-          ) : filePath ? (
-            <FileIcon path={filePath} size={14} fallback={Icon} />
-          ) : (
-            <Icon size={14} />
-          )}
-        </span>
-        {tab.closable && (
-          // No tooltip: an × on the tab you are pointing at is not ambiguous.
-          // Out of the Tab order: the strip is one Tab stop, and a tab closes
-          // from the keyboard with ⌘W or its right-click menu.
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label={`Close ${tab.title}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              close();
-            }}
-            className="absolute inset-0 hidden items-center justify-center rounded-sm text-muted-foreground hover:bg-element-active hover:text-foreground group-hover/tab:flex"
-          >
-            <X size={12} />
-          </button>
+      <div
+        role="tab"
+        aria-selected={active}
+        tabIndex={tabStop ? 0 : -1}
+        title={filePath ?? undefined}
+        data-tab-id={tab.id}
+        data-active-tab={active || undefined}
+        onClick={() => onSelect(tab.id)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") onSelect(tab.id);
+        }}
+        // Middle-click must not paste the primary selection on Linux, nor
+        // start an autoscroll elsewhere.
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault();
+        }}
+        onAuxClick={(e) => {
+          if (e.button === 1 && tab.closable) {
+            e.preventDefault();
+            close();
+          }
+        }}
+        className={cn(
+          "flex h-6 min-w-0 cursor-pointer select-none items-center gap-1.5 rounded-md pr-2 pl-1 text-xs outline-none transition-colors",
+          active
+            ? focused
+              ? "bg-element-selected text-foreground"
+              : "bg-element-hover text-secondary-foreground"
+            : "text-muted-foreground group-hover/tab:bg-element-hover group-hover/tab:text-foreground",
+          // The tab being dragged rides over its neighbours as they make room.
+          drag?.dragging && "bg-element-selected text-foreground",
         )}
-      </span>
-      <span className={cn("truncate", tab.dirty && "italic")}>{tab.title}</span>
+      >
+        <span className="relative flex size-4 shrink-0 items-center justify-center">
+          <span
+            className={cn(
+              "flex items-center justify-center",
+              tab.closable && "group-hover/tab:invisible",
+            )}
+          >
+            {running ? (
+              <Loader2 size={14} className="animate-spin text-primary" />
+            ) : filePath ? (
+              <FileIcon path={filePath} size={14} fallback={Icon} />
+            ) : (
+              <Icon size={14} />
+            )}
+          </span>
+        </span>
+        <span className={cn("truncate", tab.dirty && "italic")}>{tab.title}</span>
+      </div>
+      {tab.closable && (
+        // No tooltip: an × on the tab you are pointing at is not ambiguous.
+        // Out of the Tab order: the strip is one Tab stop, and a tab closes
+        // from the keyboard with ⌘W or its right-click menu. Transparent, not
+        // `hidden`, until the tab is hovered: it stays in the accessibility
+        // tree, so an assistive client can press it. Nor `pointer-events-none`:
+        // WebKit drops the press action of an element that has it.
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label={`Close ${tab.title}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            close();
+          }}
+          className="absolute top-1 left-1 flex size-4 items-center justify-center rounded-sm text-muted-foreground opacity-0 hover:bg-element-active hover:text-foreground group-hover/tab:opacity-100"
+        >
+          <X size={12} />
+        </button>
+      )}
     </div>
   );
 
@@ -269,7 +281,7 @@ export function PaneTab({
   return (
     <ContextMenu>
       <ContextMenuTrigger render={chip} />
-      <ContextMenuContent className="min-w-44">
+      <ContextMenuContent aria-label="Tab actions" className="min-w-44">
         <PaneTabMenuItems tab={tab} filePath={filePath} />
       </ContextMenuContent>
     </ContextMenu>

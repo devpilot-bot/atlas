@@ -11,6 +11,7 @@ import { NATIVE_AGENT_ID } from "@/types/agent";
 import { useAgentRegistryStore } from "@/features/agents/stores/agent-registry-store";
 import { useSettingsStore } from "../../stores/settings-store";
 import { useScopedSetting } from "../../lib/use-scoped-setting";
+import { useSettingName } from "../layout/setting-row-title";
 import {
   SettingsGroup,
   SettingsPage,
@@ -141,6 +142,7 @@ function useGuideAgentId(): string {
 
 function GuideAgentSelect() {
   const scoped = useScopedSetting("pullRequestGuideAgent");
+  const settingName = useSettingName("pullRequestGuideAgent");
   const defaultAgent = useScopedSetting("defaultAgent").value;
   // The primitive signature, not the arrays: see the store's header.
   useAgentRegistryStore((s) => s.signature);
@@ -164,7 +166,7 @@ function GuideAgentSelect() {
       value={scoped.value}
       options={options}
       disabled={scoped.globalOnly}
-      aria-label="Review guide: Guide agent"
+      aria-label={settingName}
       onValueChange={(next) => {
         if (next === scoped.value) return;
         scoped.set(next);
@@ -178,6 +180,7 @@ function GuideAgentSelect() {
  *  still shows what the file says. */
 function GuideModelSelect() {
   const scoped = useScopedSetting("pullRequestGuideModel");
+  const settingName = useSettingName("pullRequestGuideModel");
   const agentId = useGuideAgentId();
   const favorites = useSettingsStore((s) => s.settings.favoriteModels);
   const prefix = `${agentId}:`;
@@ -197,7 +200,7 @@ function GuideModelSelect() {
       value={scoped.value}
       options={options}
       disabled={scoped.globalOnly}
-      aria-label="Review guide: Guide model"
+      aria-label={settingName}
       onValueChange={(next) => scoped.set(next)}
     />
   );

@@ -193,13 +193,24 @@ export function ProjectFileTreeBody({
     body = <div className="px-3 py-4 text-center text-xs text-muted-foreground">Empty folder</div>;
   } else {
     body = (
-      <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+      // `presentation`: WebKit accepts only tree items, groups and
+      // presentational boxes under a `role="tree"`. One role-less box (this
+      // spacer) and it drops the tree's role and every row's with it.
+      <div
+        role="presentation"
+        className="relative w-full"
+        style={{ height: virtualizer.getTotalSize() }}
+      >
         {virtualizer.getVirtualItems().map((item) => {
           const row = display[item.index];
           if (isGhost(row)) {
             return (
               <div
                 key={GHOST_KEY}
+                role="treeitem"
+                aria-label="New entry"
+                aria-level={row.depth + 1}
+                aria-selected={false}
                 className="absolute top-0 right-1 left-1 flex items-center gap-1.5 rounded-md bg-card"
                 style={{
                   height: ROW_HEIGHT,
@@ -267,6 +278,7 @@ export function ProjectFileTreeFrame({
   root,
   header,
   truncated,
+  listed,
   scrollRef,
   focused,
   dropTarget,
@@ -284,6 +296,8 @@ export function ProjectFileTreeFrame({
   header: ReactNode;
   /** The search found more than it shows. */
   truncated: boolean | undefined;
+  /** The body is the rows, not a skeleton, an error or an empty message. */
+  listed: boolean;
   scrollRef: RefObject<HTMLDivElement | null>;
   focused: string | null;
   dropTarget: string | null;
@@ -309,11 +323,15 @@ export function ProjectFileTreeFrame({
         <ContextMenuTrigger render={<div className="flex min-h-0 flex-1 flex-col" />}>
           <div
             ref={scrollRef}
-            role="tree"
-            aria-label={`${nameOf(root)} files`}
-            aria-multiselectable
-            aria-activedescendant={focused ? domIdOf(focused) : undefined}
-            tabIndex={0}
+            // A tree only while it holds rows. WebKit checks a tree's
+            // children once, when it first meets the tree, and a skeleton
+            // or a message there turns it into a plain group for good,
+            // rows and all. Setting the role later makes it look again.
+            role={listed ? "tree" : undefined}
+            aria-label={listed ? `${nameOf(root)} files` : undefined}
+            aria-multiselectable={listed || undefined}
+            aria-activedescendant={listed && focused ? domIdOf(focused) : undefined}
+            tabIndex={listed ? 0 : -1}
             data-tree-root
             className={cn(
               "group/tree relative min-h-0 flex-1 overflow-auto py-1 outline-none",
@@ -327,7 +345,7 @@ export function ProjectFileTreeFrame({
             {body}
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent>{menu}</ContextMenuContent>
+        <ContextMenuContent aria-label="File actions">{menu}</ContextMenuContent>
       </ContextMenu>
 
       {deleteTargets && deleteTargets.length > 0 && (

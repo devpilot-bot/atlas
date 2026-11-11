@@ -22,6 +22,7 @@ import {
 import { SessionPullRequestBadge } from "../session-pull-request";
 import { SessionHoverCardPopup } from "../session-hover-card";
 import {
+  RowPressTarget,
   RowTitle,
   SnoozeMenuButton,
   TOP_STATUS,
@@ -117,29 +118,32 @@ export function SessionRowCardView(props: SessionRowCardViewProps) {
   ) : null;
 
   return (
-    <li
+    <div
+      role="listitem"
       data-session-row={session.threadId}
       style={dragStyle}
-      className={cn("list-none py-0.5", props.isDragging && "relative z-drag")}
+      className={cn("py-0.5", props.isDragging && "relative z-drag")}
     >
       <TooltipPrimitive.Root disabled={props.hoverCardDisabled}>
         <TooltipPrimitive.Trigger
           render={
+            // The pointer's surface, not a control: the row's button is the
+            // press target under the content (`RowPressTarget`).
             <div
-              role="button"
-              tabIndex={0}
-              aria-label={props.accessibleLabel}
-              aria-current={props.isActive || undefined}
-              data-testid="sidebar-row-card"
               className={rowSurfaceClassName(props)}
               onClick={props.surface.onClick}
               onDoubleClick={props.surface.onDoubleClick}
-              onKeyDown={props.surface.onKeyDown}
               onContextMenu={props.surface.onContextMenu}
               onPointerDown={props.onPointerDown}
             />
           }
         >
+          <RowPressTarget
+            label={props.accessibleLabel}
+            current={props.isActive}
+            testId="sidebar-row-card"
+            onKeyDown={props.surface.onKeyDown}
+          />
           {isRenaming ? null : <span className="sr-only">{session.title}</span>}
           <div className="relative h-19.5 px-2.5 py-2">
             <div className="flex h-5 min-w-0 items-center gap-1.5">
@@ -213,9 +217,11 @@ export function SessionRowCardView(props: SessionRowCardViewProps) {
                       // focus-visible, not focus-within: a mouse click leaves
                       // the Settle button focused, and a plain focus-within
                       // would keep the controls pinned over the status label
-                      // once the pointer moves away.
-                      "pointer-events-none absolute inset-y-0 right-0 flex items-stretch opacity-0 transition-opacity has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:static has-[:focus-visible]:opacity-100 group-hover/sidebar-row:pointer-events-auto group-hover/sidebar-row:static group-hover/sidebar-row:opacity-100",
-                      snoozeMenuOpen && "pointer-events-auto static opacity-100",
+                      // once the pointer moves away. Transparent at rest, not
+                      // `pointer-events-none`: WebKit drops the press action
+                      // of an element that has it.
+                      "absolute inset-y-0 right-0 flex items-stretch opacity-0 transition-opacity has-[:focus-visible]:static has-[:focus-visible]:opacity-100 group-hover/sidebar-row:static group-hover/sidebar-row:opacity-100",
+                      snoozeMenuOpen && "static opacity-100",
                     )}
                   >
                     <SnoozeMenuButton
@@ -288,6 +294,6 @@ export function SessionRowCardView(props: SessionRowCardViewProps) {
         </TooltipPrimitive.Trigger>
         <SessionHoverCardPopup session={session} status={status} />
       </TooltipPrimitive.Root>
-    </li>
+    </div>
   );
 }

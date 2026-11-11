@@ -166,7 +166,7 @@ const ProjectColumns = memo(function ProjectColumns({
           {i > 0 && (
             // Kept in the tree, like the collapsed column beside it; inert
             // while either side is collapsed.
-            <ResizableHandle hidden={!(shown[i - 1] && shown[i])} />
+            <ResizableHandle hidden={!(shown[i - 1] && shown[i])} aria-label="Resize the columns" />
           )}
           <ColumnPanel
             id={gid}

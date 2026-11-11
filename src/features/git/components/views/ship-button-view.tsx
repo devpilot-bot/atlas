@@ -1,4 +1,5 @@
 import { useRef, type FormEvent } from "react";
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import {
   CloudUpload,
   GitCommitHorizontal,
@@ -110,11 +111,14 @@ export function ShipButtonView({
                   key={item.choice}
                   disabled={item.disabledReason !== null}
                   title={item.disabledReason ?? undefined}
+                  aria-keyshortcuts={item.shortcut ? ariaKeyShortcut(item.shortcut) : undefined}
                   onClick={() => onRun(item.choice)}
                 >
                   <Icon />
                   {item.label}
-                  {item.shortcut && <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>}
+                  {item.shortcut && (
+                    <DropdownMenuShortcut aria-hidden>{item.shortcut}</DropdownMenuShortcut>
+                  )}
                 </DropdownMenuItem>
               );
             })}

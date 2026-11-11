@@ -34,7 +34,7 @@ describe("TerminalTabStrip", () => {
       <TerminalTabStrip pane={pane} tabId="tab1" hasSplits={false} />,
     );
 
-    const closeButtons = getAllByRole("button", { name: "Close terminal" });
+    const closeButtons = getAllByRole("button", { name: /^Close terminal \d+$/ });
     expect(closeButtons.length).toBe(2);
 
     fireEvent.click(closeButtons[0]);
@@ -55,7 +55,7 @@ describe("TerminalTabStrip", () => {
       <TerminalTabStrip pane={pane} tabId="tab1" hasSplits={false} />,
     );
 
-    const closeButtons = getAllByRole("button", { name: "Close terminal" });
+    const closeButtons = getAllByRole("button", { name: /^Close terminal \d+$/ });
     const event = new MouseEvent("mousedown", { button: 0, cancelable: true, bubbles: true });
     closeButtons[0].dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);

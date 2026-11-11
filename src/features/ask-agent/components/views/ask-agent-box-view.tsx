@@ -2,6 +2,7 @@
 // the two ways out (send, or draft into the composer). Props only — the
 // container is `ask-agent-host.tsx`.
 
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import type { Ref } from "react";
 import { X } from "lucide-react";
 import { Button, Icon, KbdKeys, Pill, Select, Textarea } from "@tryatlas/design";
@@ -149,13 +150,28 @@ export function AskAgentBoxView({
           />
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="sm" variant="ghost" disabled={!canSubmit} onClick={onDraft}>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={!canSubmit}
+            aria-keyshortcuts={ariaKeyShortcut(draftKeys.join("+"))}
+            onClick={onDraft}
+          >
             Draft
-            <KbdKeys keys={draftKeys} />
+            <span aria-hidden className="flex">
+              <KbdKeys keys={draftKeys} />
+            </span>
           </Button>
-          <Button size="sm" disabled={!canSubmit} onClick={onSend}>
+          <Button
+            size="sm"
+            disabled={!canSubmit}
+            aria-keyshortcuts={ariaKeyShortcut(sendKeys.join("+"))}
+            onClick={onSend}
+          >
             Send
-            <KbdKeys keys={sendKeys} />
+            <span aria-hidden className="flex">
+              <KbdKeys keys={sendKeys} />
+            </span>
           </Button>
         </div>
       </div>

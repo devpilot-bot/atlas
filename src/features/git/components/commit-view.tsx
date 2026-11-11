@@ -311,9 +311,17 @@ export function DiffFilesView({
                   <div key={vr.key} {...measured} style={{ ...base, paddingTop: 4 }}>
                     <HintGroup>
                       <div
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={!isCollapsed}
                         onClick={() => toggleFile(file.path)}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter" && e.key !== " ") return;
+                          e.preventDefault();
+                          toggleFile(file.path);
+                        }}
                         className={cn(
-                          "group flex h-9 cursor-pointer items-center gap-2 border border-border bg-card px-2 hover:bg-element-hover",
+                          "group flex h-9 cursor-pointer items-center gap-2 border border-border bg-card px-2 outline-none hover:bg-element-hover focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                           isCollapsed ? "rounded-md" : "rounded-t-md",
                         )}
                       >

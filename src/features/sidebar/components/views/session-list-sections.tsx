@@ -57,9 +57,9 @@ export function SnoozedShelfView({
       >
         {expanded ? "Snoozed" : `Snoozed (${count})`}
       </CollapsibleSectionHeader>
-      <ul aria-label="Snoozed sessions" className="flex flex-col">
+      <div role="list" aria-label="Snoozed sessions" className="flex flex-col">
         {rows.map(renderRow)}
-      </ul>
+      </div>
     </div>
   );
 }
@@ -129,15 +129,15 @@ export function SettledShelfView({
           ) : null}
         </label>
       ) : null}
-      <ul aria-label="Settled sessions" className="flex flex-col">
+      <div role="list" aria-label="Settled sessions" className="flex flex-col">
         {rows.map(renderRow)}
         {noMatches ? (
-          <li className="list-none px-2.5 py-2 text-xs text-muted-foreground">
+          <div role="listitem" className="px-2.5 py-2 text-xs text-muted-foreground">
             No settled sessions match.
-          </li>
+          </div>
         ) : null}
         {hiddenCount > 0 ? (
-          <li className="list-none">
+          <div role="listitem">
             <button
               type="button"
               onClick={onShowMore}
@@ -146,9 +146,9 @@ export function SettledShelfView({
               <Plus aria-hidden className="size-4 shrink-0" />
               Show {Math.min(hiddenCount, pageSize)} more
             </button>
-          </li>
+          </div>
         ) : null}
-      </ul>
+      </div>
     </div>
   );
 }

@@ -45,7 +45,7 @@ export function PreferredEditorSelect() {
         value={scoped.value}
         options={preferredEditorOptions(editors, scoped.value)}
         disabled={scoped.globalOnly || !editors}
-        aria-label="Files: Preferred editor"
+        aria-label="Preferred editor"
         onValueChange={(next) => scoped.set(next)}
       />
       <Hint label="Look for installed editors again">

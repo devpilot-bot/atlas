@@ -179,6 +179,8 @@ function ModelRow({
             icon={Trash2}
             size="sm"
             label={`Remove ${m.name}`}
+            // Named here too: Hint names an unnamed trigger after its own label.
+            aria-label={`Remove ${m.name}`}
             disabled={busy}
             onClick={onRemove}
           />

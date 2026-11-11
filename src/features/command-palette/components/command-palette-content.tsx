@@ -23,7 +23,8 @@ import {
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { isMac } from "@/lib/platform";
-import { useActionShortcut } from "@/features/keybindings/lib/use-action-shortcut";
+import { shortcutLabel, useActionShortcut } from "@/features/keybindings/lib/use-action-shortcut";
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import type { ActionId } from "@/features/keybindings/lib/actions";
 import {
   buildCommandPaletteRows,
@@ -249,12 +250,20 @@ export function CommandPaletteContent(props: CommandPaletteContentProps) {
       {rows.length === 0 ? (
         <CommandEmpty>{props.emptyMessage}</CommandEmpty>
       ) : (
-        <CommandPanel ref={scrollRef} id={listId} size={props.size}>
-          <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+        <CommandPanel ref={scrollRef} id={listId} size={props.size} aria-label="Results">
+          {/* The virtualizer's spacer and row boxes are layout only, so they
+              say so: WebKit keeps a role-less box between a listbox and its
+              options, and the options then read as plain text there. */}
+          <div
+            role="presentation"
+            className="relative w-full"
+            style={{ height: virtualizer.getTotalSize() }}
+          >
             {virtualizer.getVirtualItems().map((virtualRow) => {
               const row = rows[virtualRow.index]!;
               return (
                 <div
+                  role="presentation"
                   key={virtualRow.key}
                   data-index={virtualRow.index}
                   ref={virtualizer.measureElement}
@@ -342,9 +351,16 @@ function CommandPaletteRowView(props: {
       <span className="truncate">{item.title}</span>
     </span>
   );
+  // The chord is announced, not read as part of the row's name.
+  const chord = item.shortcutAction
+    ? shortcutLabel(item.shortcutAction)
+    : item.jumpDigit !== undefined
+      ? `${isMac ? "⌘" : "Ctrl+"}${item.jumpDigit}`
+      : null;
   return (
     <CommandItem
       id={props.id}
+      aria-keyshortcuts={chord ? ariaKeyShortcut(chord) : undefined}
       active={props.active}
       disabled={item.disabled}
       onPointerMove={(event) => props.onPoint(event.clientX, event.clientY)}
@@ -371,7 +387,9 @@ function CommandPaletteRowView(props: {
       )}
       {item.shortcutAction && <ActionShortcut id={item.shortcutAction} />}
       {item.jumpDigit !== undefined && !item.shortcutAction && (
-        <CommandShortcut>{isMac ? `⌘${item.jumpDigit}` : `Ctrl+${item.jumpDigit}`}</CommandShortcut>
+        <CommandShortcut aria-hidden>
+          {isMac ? `⌘${item.jumpDigit}` : `Ctrl+${item.jumpDigit}`}
+        </CommandShortcut>
       )}
       {item.kind === "submenu" && <CommandSubmenuChevron />}
     </CommandItem>
@@ -382,5 +400,5 @@ function CommandPaletteRowView(props: {
 function ActionShortcut({ id }: { id: ActionId }) {
   const shortcut = useActionShortcut(id);
   if (!shortcut) return null;
-  return <CommandShortcut>{shortcut.label}</CommandShortcut>;
+  return <CommandShortcut aria-hidden>{shortcut.label}</CommandShortcut>;
 }

@@ -261,7 +261,7 @@ function PullRequestMenu({
   return (
     <ContextMenu>
       <ContextMenuTrigger render={<div />}>{children}</ContextMenuTrigger>
-      <ContextMenuContent>
+      <ContextMenuContent aria-label="Pull request actions">
         {link && prs.threadId ? (
           <SessionPullRequestMenuItems
             Item={ContextMenuItem}

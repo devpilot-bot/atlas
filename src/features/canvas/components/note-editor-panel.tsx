@@ -147,6 +147,7 @@ export function NoteEditorPanel({ noteId, projectPath, onClose }: NoteEditorPane
             ref={editorRef}
             documentId={`canvas:${noteId}`}
             initialMarkdown={note.body}
+            label={note.title || "Untitled note"}
             placeholder="Write… use @ to reference a note or repo"
             className="min-h-full !bg-transparent"
           />

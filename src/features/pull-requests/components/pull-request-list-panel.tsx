@@ -636,7 +636,7 @@ export function PullRequestListPanel({ repoPath }: { repoPath: string }) {
                 </div>
               )}
             </ContextMenuTrigger>
-            <ContextMenuContent>
+            <ContextMenuContent aria-label="Pull request actions">
               {menuEntry ? (
                 <>
                   <ContextMenuItem onClick={() => open(menuEntry)}>

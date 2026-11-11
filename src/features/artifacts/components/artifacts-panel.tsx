@@ -107,7 +107,7 @@ export function ArtifactsPanel() {
    *  It widens on its own when a side panel opens. The chat and the comments
    *  live INSIDE the dock, so without this they take their room from the
    *  record you opened the Session to read. */
-  const mainRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const [mainWidth, setMainWidth] = useState(0);
   useEffect(() => {
     const el = mainRef.current;
@@ -294,7 +294,7 @@ export function ArtifactsPanel() {
               itself with `flex-1 min-h-0` so its list scrolls inside a bounded
               height. In a non-flex parent that chain never resolves, the
               column grows to its content, and the list cannot scroll. */}
-          <main ref={mainRef} className="flex min-w-0 flex-1 bg-[var(--background)]">
+          <div ref={mainRef} className="flex min-w-0 flex-1 bg-[var(--background)]">
             {/* The board, always. It is the index you read *from*, and
                 replacing it to show one Session lost your place on every open.
                 Hidden only when the reader is widened on purpose. */}
@@ -436,7 +436,7 @@ export function ArtifactsPanel() {
                 </div>
               </aside>
             )}
-          </main>
+          </div>
         </div>
       </div>
     </div>

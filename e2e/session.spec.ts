@@ -11,9 +11,13 @@ import { composer, expect, openScenario, sidebar, test } from "./fixtures";
 test("opens a session from the sidebar and reads its transcript", async ({ page }) => {
   await openScenario(page, "northwind");
 
+  // `force`: the row's button is an empty layer under its content (see
+  // `RowPressTarget`), so the title is what a pointer lands on, and its click
+  // bubbles to the same handler. Playwright would wait forever for the button
+  // to be the topmost element.
   await sidebar(page)
     .getByRole("button", { name: /^Move discount code validation to the server/ })
-    .click();
+    .click({ force: true });
 
   await expect(
     // The switcher truncates a long title, so match its start.

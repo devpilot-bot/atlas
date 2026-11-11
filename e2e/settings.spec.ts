@@ -19,7 +19,7 @@ test("opens Settings and changes a setting", async ({ page }) => {
       - button "Back to the workspace"
   `);
 
-  const hidden = page.getByRole("switch", { name: "Files: Show hidden files" });
+  const hidden = page.getByRole("switch", { name: "Show hidden files" });
   await expect(hidden).toBeChecked();
   await hidden.click();
   await expect(hidden).not.toBeChecked();
@@ -28,7 +28,7 @@ test("opens Settings and changes a setting", async ({ page }) => {
   await sections.getByRole("button", { name: "Appearance" }).click();
   await expect(page.getByRole("heading", { name: "Appearance", level: 1 })).toBeVisible();
   await sections.getByRole("button", { name: "General" }).click();
-  await expect(page.getByRole("switch", { name: "Files: Show hidden files" })).not.toBeChecked();
+  await expect(page.getByRole("switch", { name: "Show hidden files" })).not.toBeChecked();
 
   await sections.getByRole("button", { name: "Back to the workspace" }).click();
   await expect(sections).toBeHidden();

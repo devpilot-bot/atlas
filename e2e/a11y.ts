@@ -37,19 +37,9 @@ const CONTRAST: Known = {
 const SHELL: Known[] = [
   CONTRAST,
   {
-    rule: "nested-interactive",
-    issue: "ATL-1007",
-    why: "a sidebar session row is a button holding the Snooze/Settle/Unpin buttons",
-  },
-  {
     rule: "label-content-name-mismatch",
     issue: "ATL-1007",
-    why: "a session row's aria-label adds project and status to its visible title",
-  },
-  {
-    rule: "aria-required-children",
-    issue: "ATL-1007",
-    why: "the virtualised Active sessions list wraps its items in role-less divs",
+    why: "status chips and menu triggers (capture status, Attach a project, Pull) are named for what they do, not their visible text",
   },
 ];
 
@@ -72,19 +62,13 @@ export const KNOWN_VIOLATIONS: Record<string, Known[]> = {
   sidebar: SHELL,
   "inbox-long": SHELL,
   "memory-populated": SHELL,
-  knowledge: [
-    ...SHELL,
-    {
-      rule: "aria-input-field-name",
-      issue: "ATL-1007",
-      why: "the knowledge editor's contenteditable textbox has no name",
-    },
-  ],
+  knowledge: SHELL,
   "fresh-install": [CONTRAST, DIALOG_FOCUS_GUARDS],
   // Surfaces reached by a journey.
   "command-palette": [CONTRAST, DIALOG_FOCUS_GUARDS],
+  // Settings makes the workspace behind it inert, so the shell's rules are gone.
   settings: [
-    ...SHELL,
+    CONTRAST,
     {
       // Chromium's "Desktop Chrome" profile reports Windows, so Settings shows
       // its Windows-only disabled rows.
@@ -94,7 +78,14 @@ export const KNOWN_VIOLATIONS: Record<string, Known[]> = {
       engines: ["chromium"],
     },
   ],
-  "source-control": SHELL,
+  "source-control": [
+    ...SHELL,
+    {
+      rule: "aria-required-children",
+      issue: "ATL-1007",
+      why: "a tab's close button and a changed file's actions sit beside the tab or option inside the tablist or listbox: inside it they would be presentational, and an assistive client could not press them",
+    },
+  ],
 };
 
 /**

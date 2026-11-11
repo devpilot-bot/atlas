@@ -114,7 +114,7 @@ export function BranchRow({ path, git }: { path: string; git: SessionGit }) {
           </PopoverContent>
         </Popover>
       </ContextMenuTrigger>
-      <ContextMenuContent>
+      <ContextMenuContent aria-label="Branch actions">
         <ContextMenuItem
           disabled={detached || !branch}
           onClick={() =>

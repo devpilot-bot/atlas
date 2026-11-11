@@ -2,7 +2,8 @@
 // right panel.
 //
 // Always present while a project is open, at a fixed place beside the
-// account, and pressed (`aria-pressed`) while the pane is on screen. It is the
+// account, and named for what a press does ("Hide panel" while the pane is on
+// screen); no `aria-pressed`, which would contradict the label. It is the
 // pane's one show/hide control: the pane's own strip keeps only Maximize
 // (`PanelPlacementControls`), and nothing else hides it.
 //
@@ -52,7 +53,6 @@ export function RightPanelToggle() {
         label={label}
         size="sm"
         iconSize="md"
-        aria-pressed={shown}
         data-right-panel-toggle
         onClick={toggleRightPanel}
       />

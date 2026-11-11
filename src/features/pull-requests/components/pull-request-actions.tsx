@@ -4,6 +4,7 @@
 // Approve workflows. A merge, auto-merge, close, revert, approval or branch
 // delete needs a second press on the same control.
 
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import { useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
@@ -545,18 +546,26 @@ export function PullRequestActionsMenu({
           <ArrowUpRight />
           Open on GitHub
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onCopyLink}>
+        <DropdownMenuItem
+          aria-keyshortcuts={copyLinkShortcut ? ariaKeyShortcut(copyLinkShortcut.label) : undefined}
+          onClick={onCopyLink}
+        >
           <Link />
           Copy link
           {copyLinkShortcut ? (
-            <DropdownMenuShortcut>{copyLinkShortcut.label}</DropdownMenuShortcut>
+            <DropdownMenuShortcut aria-hidden>{copyLinkShortcut.label}</DropdownMenuShortcut>
           ) : null}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onCopyNumber}>
+        <DropdownMenuItem
+          aria-keyshortcuts={
+            copyNumberShortcut ? ariaKeyShortcut(copyNumberShortcut.label) : undefined
+          }
+          onClick={onCopyNumber}
+        >
           <Copy />
           Copy PR number
           {copyNumberShortcut ? (
-            <DropdownMenuShortcut>{copyNumberShortcut.label}</DropdownMenuShortcut>
+            <DropdownMenuShortcut aria-hidden>{copyNumberShortcut.label}</DropdownMenuShortcut>
           ) : null}
         </DropdownMenuItem>
         {endGroup ? (

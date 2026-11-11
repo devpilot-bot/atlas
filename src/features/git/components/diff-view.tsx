@@ -254,19 +254,31 @@ export function DiffView({
                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-t-md border border-border bg-card hover:bg-accent cursor-pointer group"
                       onClick={() => toggleFile(file.path)}
                     >
-                      <ChevronRight
-                        size={11}
-                        className={cn(
-                          "shrink-0 text-muted-foreground transition-transform",
-                          !isCollapsed && "rotate-90",
-                        )}
-                      />
+                      {/* The header's click is for the pointer; this is its
+                          button, beside the others rather than around them. */}
+                      <button
+                        type="button"
+                        aria-expanded={!isCollapsed}
+                        aria-label={`${isCollapsed ? "Expand" : "Collapse"} ${file.path}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFile(file.path);
+                        }}
+                        className="flex shrink-0 items-center rounded-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <ChevronRight
+                          size={11}
+                          className={cn("transition-transform", !isCollapsed && "rotate-90")}
+                        />
+                      </button>
                       <span className="text-xs text-secondary-foreground font-mono truncate flex-1 select-text">
                         {file.path}
                       </span>
                       {onOpenDiff && (
                         <HintItem label="Open in diff view">
                           <button
+                            type="button"
+                            aria-label={`Open ${file.path} in diff view`}
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenDiff(file.path);
@@ -280,6 +292,8 @@ export function DiffView({
                       {onOpenFile && (
                         <HintItem label="Open in code editor">
                           <button
+                            type="button"
+                            aria-label={`Open ${file.path} in code editor`}
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenFile(file.path);
@@ -408,9 +422,23 @@ export function DiffView({
                   key={vr.index}
                   data-index={vr.index}
                   ref={virtualizer.measureElement}
+                  // A line picked for partial staging is a checkbox, so a
+                  // keyboard or an assistive client can pick it too.
+                  role={selectable && isChange ? "checkbox" : undefined}
+                  aria-checked={selectable && isChange ? isSelected : undefined}
+                  tabIndex={selectable && isChange ? 0 : undefined}
                   onClick={
                     selectable && isChange
                       ? () => toggleLine(row.fileIndex, row.hunkIndex, row.lineIndex)
+                      : undefined
+                  }
+                  onKeyDown={
+                    selectable && isChange
+                      ? (e) => {
+                          if (e.key !== " " && e.key !== "Enter") return;
+                          e.preventDefault();
+                          toggleLine(row.fileIndex, row.hunkIndex, row.lineIndex);
+                        }
                       : undefined
                   }
                   title={selectable && isChange ? "Click to select for partial staging" : undefined}

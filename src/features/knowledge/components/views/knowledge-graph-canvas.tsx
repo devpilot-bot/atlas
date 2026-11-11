@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { GraphNodeList } from "@/components/graph-node-list";
 import { Application } from "pixi.js";
 import { destroyPixiApp, registerPixiApp } from "@/lib/pixi-app";
 import { canvasResolution } from "@/lib/ui-zoom";
@@ -173,6 +174,12 @@ export function KnowledgeGraphCanvas({
     <div className="relative h-full w-full">
       <div ref={hostRef} className="h-full w-full" />
       <GraphRuler width={width} height={height} viewport={viewport} />
+      <GraphNodeList
+        label="Pages in the graph"
+        nodes={graph.nodes}
+        selectedId={selectedId}
+        onActivate={onActivate}
+      />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Menu } from "lucide-react";
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import { cn } from "@/lib/utils";
 import { isActionId } from "@/features/keybindings/lib/actions";
 import { useActionShortcut } from "@/features/keybindings/lib/use-action-shortcut";
@@ -70,15 +71,27 @@ export function AppMenuButton({ className }: { className?: string }) {
 }
 
 function MenuItem({ item }: { item: RunnableItem }) {
-  return (
-    <DropdownMenuItem onClick={() => runMenuItem(item.id)}>
-      {item.label}
-      {item.type === "action" && isActionId(item.id) && <ItemShortcut id={item.id} />}
-    </DropdownMenuItem>
-  );
+  if (item.type === "action" && isActionId(item.id))
+    return <ActionMenuItem item={item} id={item.id} />;
+  return <DropdownMenuItem onClick={() => runMenuItem(item.id)}>{item.label}</DropdownMenuItem>;
 }
 
-function ItemShortcut({ id }: { id: Parameters<typeof useActionShortcut>[0] }) {
+/** An action's item: its chord is announced, not read as part of its name. */
+function ActionMenuItem({
+  item,
+  id,
+}: {
+  item: RunnableItem;
+  id: Parameters<typeof useActionShortcut>[0];
+}) {
   const shortcut = useActionShortcut(id);
-  return shortcut ? <DropdownMenuShortcut>{shortcut.label}</DropdownMenuShortcut> : null;
+  return (
+    <DropdownMenuItem
+      aria-keyshortcuts={shortcut ? ariaKeyShortcut(shortcut.label) : undefined}
+      onClick={() => runMenuItem(item.id)}
+    >
+      {item.label}
+      {shortcut && <DropdownMenuShortcut aria-hidden>{shortcut.label}</DropdownMenuShortcut>}
+    </DropdownMenuItem>
+  );
 }

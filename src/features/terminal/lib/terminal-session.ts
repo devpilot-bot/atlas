@@ -34,6 +34,7 @@ import type { IBufferLine, Terminal } from "@xterm/xterm";
 import type { FitAddon } from "@xterm/addon-fit";
 import type { WebglAddon } from "@xterm/addon-webgl";
 import { onThemeApplied } from "@/features/theme/theme-values";
+import { useSettingsStore } from "@/features/settings/stores/settings-store";
 import { terminalTheme } from "./terminal-theme";
 import { ShellIntegration } from "./shell-integration";
 import { createTerminalEventSink } from "./terminal-notifier";
@@ -89,6 +90,9 @@ const QUEUED_FLOOR_MS = 1500;
 /** `terminalFontSize`, as `display-settings.ts` last applied it. */
 const fontSize = () => appliedTerminalFontSize();
 const LINE_HEIGHT = 1.4;
+/** `terminalScreenReader`: xterm's accessible mirror of the screen, which
+ *  screen readers and assistive clients read instead of the canvas. */
+const screenReaderMode = () => useSettingsStore.getState().settings.terminalScreenReader;
 
 // ── Module state (survives HMR via globalThis) ─────────────────────────────
 
@@ -144,6 +148,14 @@ function startGlobalListeners(): void {
     if (next === applied) return;
     applied = next;
     for (const session of reg.sessions.values()) void session.refont();
+  });
+  // And `terminalScreenReader`, which xterm can switch on a live terminal.
+  let reader = screenReaderMode();
+  useSettingsStore.subscribe(() => {
+    const next = screenReaderMode();
+    if (next === reader) return;
+    reader = next;
+    for (const session of reg.sessions.values()) session.setScreenReaderMode(next);
   });
 }
 
@@ -338,6 +350,7 @@ export class TerminalSession {
       cursorBlink: true,
       allowProposedApi: true,
       theme: terminalTheme(),
+      screenReaderMode: screenReaderMode(),
       cols: this.lastSize?.cols ?? 80,
       rows: this.lastSize?.rows ?? 24,
     });
@@ -493,6 +506,10 @@ export class TerminalSession {
    */
   retheme(): void {
     if (this.xterm) this.xterm.options.theme = terminalTheme();
+  }
+
+  setScreenReaderMode(on: boolean): void {
+    if (this.xterm) this.xterm.options.screenReaderMode = on;
   }
 
   /** Take the current `terminalFontSize` and font, then refit. */

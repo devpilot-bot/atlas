@@ -139,6 +139,7 @@ export function AtlasBubbleMenu({ editor }: AtlasBubbleMenuProps) {
             <Hint label="Remove link" side="top">
               <button
                 type="button"
+                aria-label="Remove link"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   editor.chain().focus().unsetLink().run();

@@ -588,6 +588,11 @@ pub struct AppSettings {
     /// Terminal font size in pixels.
     #[serde(default = "default_font_size")]
     pub terminal_font_size: u32,
+    /// The terminal keeps an accessible copy of its screen, for screen
+    /// readers and assistive clients. Off by default: it costs work on every
+    /// write.
+    #[serde(default)]
+    pub terminal_screen_reader: bool,
     /// Hide whitespace-only changes in read-only diffs. Never applied where a
     /// diff can be staged, since a patch without whitespace no longer applies.
     #[serde(default)]
@@ -804,6 +809,7 @@ impl Default for AppSettings {
             terminal_font_family: String::new(),
             editor_font_size: DEFAULT_FONT_SIZE,
             terminal_font_size: DEFAULT_FONT_SIZE,
+            terminal_screen_reader: false,
             diff_ignore_whitespace: false,
             diff_files_collapsed: true,
             diff_palette: DiffPalette::default(),
@@ -1371,6 +1377,7 @@ pub struct SettingsPatch {
     pub terminal_font_family: Option<String>,
     pub editor_font_size: Option<u32>,
     pub terminal_font_size: Option<u32>,
+    pub terminal_screen_reader: Option<bool>,
     pub diff_ignore_whitespace: Option<bool>,
     pub diff_files_collapsed: Option<bool>,
     pub diff_palette: Option<DiffPalette>,
@@ -1562,6 +1569,7 @@ impl SettingsPatch {
             terminal_font_family,
             editor_font_size,
             terminal_font_size,
+            terminal_screen_reader,
             diff_ignore_whitespace,
             diff_files_collapsed,
             diff_palette,
@@ -1639,6 +1647,7 @@ impl SettingsPatch {
         );
         set_bool!(new_session_uses_last_agent, "newSessionUsesLastAgent");
         set_bool!(word_wrap, "wordWrap");
+        set_bool!(terminal_screen_reader, "terminalScreenReader");
         set_bool!(diff_ignore_whitespace, "diffIgnoreWhitespace");
         set_bool!(diff_files_collapsed, "diffFilesCollapsed");
         set_bool!(show_turn_rail, "showTurnRail");
@@ -2913,6 +2922,7 @@ someFutureKey = \"left alone\"
             terminal_font_family: Some("Menlo".to_string()),
             editor_font_size: Some(15),
             terminal_font_size: Some(14),
+            terminal_screen_reader: Some(!defaults.terminal_screen_reader),
             diff_ignore_whitespace: Some(!defaults.diff_ignore_whitespace),
             diff_files_collapsed: Some(!defaults.diff_files_collapsed),
             diff_palette: Some(DiffPalette::BlueOrange),

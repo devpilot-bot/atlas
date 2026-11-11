@@ -656,6 +656,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub security_scan: bool,
     /// User prices in USD per million tokens, used for local cost estimates.
+    /// Always serialized (the frontend reads it off every settings payload);
+    /// `document_for` writes it inline so the file never grows a table header.
     #[serde(default)]
     pub model_price_overrides: BTreeMap<String, ModelPriceOverride>,
 }
@@ -1138,7 +1140,21 @@ fn document_for(settings: &AppSettings) -> toml_edit::DocumentMut {
         settings: settings.clone(),
     };
     let text = toml::to_string_pretty(&file).expect("AppSettings always serializes to TOML");
-    annotate(&text)
+    // `toml` writes a map as a trailing `[settings.modelPriceOverrides]` table,
+    // and a key a user later appends below that header lands inside it. Write
+    // it inline, the form `apply_patch` uses too.
+    let mut document: toml_edit::DocumentMut =
+        text.parse().expect("freshly-serialized TOML always parses");
+    if let Some(settings) = document.get_mut("settings").and_then(|i| i.as_table_mut()) {
+        // Removed and re-inserted, not replaced in place: the header's key
+        // decor would otherwise print `modelPriceOverrides= {}`.
+        if let Some(toml_edit::Item::Table(table)) = settings.remove("modelPriceOverrides") {
+            let mut inline = table.into_inline_table();
+            inline.fmt();
+            settings.insert("modelPriceOverrides", toml_edit::value(inline));
+        }
+    }
+    annotate(&document.to_string())
         .parse()
         .expect("freshly-generated TOML always parses")
 }
@@ -1166,21 +1182,14 @@ fn annotate(generated: &str) -> String {
     let mut carried: Vec<&str> = Vec::new();
 
     for line in generated.lines() {
-        // A scalar key or a known settings table, not `[settings]` or a blank.
-        // Getting this wrong once meant `[settings]`
+        // A key line, not the `[settings]` header or a blank: it has an `=`,
+        // and something before it. Getting this wrong once meant `[settings]`
         // was read as a key, which drained every remaining doc entry into
         // `carried` and dumped all of them at the bottom of the file.
         let Some(assigned) = line
             .split_once('=')
             .map(|(key, _)| key.trim())
             .filter(|key| !key.is_empty())
-            .or_else(|| {
-                // An empty map is emitted as a table header. Its setting's
-                // comment belongs above that header, just like a scalar key.
-                line.strip_prefix("[settings.")
-                    .and_then(|key| key.strip_suffix(']'))
-                    .filter(|key| known_settings_keys().any(|known| known == *key))
-            })
         else {
             out.push_str(line);
             out.push('\n');
@@ -3580,9 +3589,30 @@ red = "#ee0000"
             .iter()
             .find(|(key, _)| *key == "modelPriceOverrides")
             .unwrap();
-        assert!(document_for(&AppSettings::default())
-            .to_string()
-            .contains(&format!("{comment}\n[settings.modelPriceOverrides]")));
+        // Inline, so there is no table header for hand-added keys to fall into.
+        let fresh = document_for(&AppSettings::default()).to_string();
+        assert!(fresh.contains(&format!("{comment}\nmodelPriceOverrides = {{}}")));
+        assert!(!fresh.contains("[settings.modelPriceOverrides]"));
+        let appended = format!("{fresh}someFutureKey = \"x\"\n");
+        let mgr_appended = ConfigManager::from_raw(path.clone(), &appended).unwrap();
+        assert!(mgr_appended.effective().model_price_overrides.is_empty());
+        assert!(mgr_appended
+            .unknown_keys()
+            .contains(&"someFutureKey".to_string()));
+        // A nonempty map written whole (first run, reset) stays inline too.
+        let whole = document_for(&AppSettings {
+            model_price_overrides: overrides.clone(),
+            ..AppSettings::default()
+        })
+        .to_string();
+        assert!(!whole.contains("[settings.modelPriceOverrides"));
+        assert_eq!(
+            ConfigManager::from_raw(path.clone(), &whole)
+                .unwrap()
+                .effective()
+                .model_price_overrides,
+            overrides
+        );
         assert!(saved.contains(&format!("{comment}\nmodelPriceOverrides = ")));
         assert_eq!(
             ConfigManager::from_raw(path.clone(), &saved)

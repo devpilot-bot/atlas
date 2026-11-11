@@ -40,6 +40,8 @@ export interface Plan {
   app: boolean;
   engineDialect: boolean;
   crates: CrateEntry[];
+  /** Whether the `e2e` job runs: everything planned, or an E2E_INPUTS path changed. */
+  e2e: boolean;
 }
 
 export type Range = { all: string } | { base: string; head: string };
@@ -48,6 +50,7 @@ export const REPO_ROOT: string;
 export const GLOBAL_INPUTS: string[];
 export const EXTRA_INPUTS: ExtraInput[];
 export const NON_RUST: string[];
+export const E2E_INPUTS: string[];
 export function matches(pattern: string, file: string): boolean;
 export function loadWorkspace(root?: string): Workspace;
 export function affectedPackages(

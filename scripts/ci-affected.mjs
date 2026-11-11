@@ -42,6 +42,10 @@
  * The `frontend` job is not planned: it always runs. It takes a minute, and
  * the contract suites in `tests/` read Rust sources and manifests, so there
  * is almost no change it could safely skip.
+ *
+ * The `e2e` job is planned separately, by path alone: it drives the frontend
+ * over the browser mock backend, so only a change to what the browser loads
+ * (E2E_INPUTS) can change its answer. A run that plans everything runs it.
  */
 
 import { execFileSync } from "node:child_process";
@@ -130,10 +134,28 @@ export const EXTRA_INPUTS = [
   })),
 ];
 
+/**
+ * What the `e2e` job's browsers load: the app and its mock backend, the Vite
+ * and Playwright configs that serve and drive it, the dependencies, and the
+ * Bun and Node pins (mise.toml) the job installs.
+ */
+export const E2E_INPUTS = [
+  "src/",
+  "e2e/",
+  "public/",
+  "index.html",
+  "vite.config.ts",
+  "playwright.config.ts",
+  "package.json",
+  "bun.lock",
+  "mise.toml",
+];
+
 /** Paths no Rust job reads. The frontend job, which always runs, covers them. */
 export const NON_RUST = [
   "src/",
   "tests/",
+  "e2e/",
   "docs/",
   "landing/",
   "public/",
@@ -168,6 +190,7 @@ export const NON_RUST = [
   "tsconfig.test.json",
   "vite.config.ts",
   "vitest.config.ts",
+  "playwright.config.ts",
   "components.json",
   "index.html",
   ".oxlintrc.json",
@@ -269,8 +292,8 @@ export function dialectPackages(ciYml) {
 }
 
 /**
- * Which Rust jobs to run for `files`; `files === null` means run everything
- * for `allReason`.
+ * Which jobs to run for `files`: the Rust jobs, and `e2e`. `files === null`
+ * means run everything for `allReason`.
  */
 export function plan(files, { workspace, crates, dialect }, allReason = "everything requested") {
   const { all, packages } =
@@ -283,6 +306,7 @@ export function plan(files, { workspace, crates, dialect }, allReason = "everyth
     app: hit(nameOfDir.get("src-tauri") ?? "atlas"),
     engineDialect: dialect.some(hit),
     crates: crates.filter((c) => hit(nameOfDir.get(`crates/${c.crate}`) ?? c.crate)),
+    e2e: all !== null || files.some((f) => E2E_INPUTS.some((i) => matches(i, f))),
   };
 }
 
@@ -344,6 +368,8 @@ function summarise(p, crates) {
   return [
     `### CI plan: ${ran} of ${jobs.length} Rust jobs`,
     "",
+    `End-to-end (e2e): ${p.e2e ? "running" : "skipped"}`,
+    "",
     `Reason: ${p.reason}`,
     "",
     ...(p.affected ? [`Affected first-party packages: ${firstParty(p.affected)}`, ""] : []),
@@ -403,6 +429,7 @@ function main(argv) {
         `app=${result.app}`,
         `engine-dialect=${result.engineDialect}`,
         `crates=${JSON.stringify(result.crates)}`,
+        `e2e=${result.e2e}`,
         "",
       ].join("\n"),
     );

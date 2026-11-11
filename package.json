@@ -17,12 +17,13 @@
     "build:app:dmg:intel": "bash scripts/build-dmg.sh intel",
     "build:app:win": "node scripts/with-posthog-env.mjs tauri build --target x86_64-pc-windows-msvc --bundles msi",
     "build:app:linux": "node scripts/with-posthog-env.mjs tauri build --config src-tauri/tauri.linux.conf.json",
-    "lint": "oxlint src/ tests/ scripts/",
-    "format": "oxfmt --write src/ tests/ scripts/",
-    "format:check": "oxfmt --check src/ tests/ scripts/",
+    "lint": "oxlint src/ tests/ scripts/ e2e/ playwright.config.ts",
+    "format": "oxfmt --write src/ tests/ scripts/ e2e/ playwright.config.ts",
+    "format:check": "oxfmt --check src/ tests/ scripts/ e2e/ playwright.config.ts",
     "doctor": "node scripts/doctor.mjs",
     "test": "vitest run",
     "test:contracts": "vitest run tests/",
+    "test:e2e": "playwright test",
     "theme:keys": "node scripts/generate-theme-keys.mjs",
     "theme:pierre": "node scripts/theme-pierre.mjs",
     "theme:keys:check": "node scripts/generate-theme-keys.mjs --check",
@@ -136,7 +137,9 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@pierre/theme": "2.0.0",
+    "@playwright/test": "1.64.1",
     "@shadcn/lint": "^0.2.3",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2.12.4",
@@ -172,7 +175,7 @@
     "@codemirror/view": "^6.43.0"
   },
   "lint-staged": {
-    "{src,tests,scripts}/**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}": [
+    "{src,tests,scripts,e2e}/**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}": [
       "oxfmt --write",
       "oxlint"
     ],

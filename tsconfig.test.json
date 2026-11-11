@@ -23,6 +23,9 @@
     // The Vite config is Node code too (`import.meta.dirname`, `process.env`)
     // and is otherwise typechecked by nothing.
     "vite.config.ts",
+    // The Playwright suite runs under Node too, and nothing else typechecks it.
+    "e2e",
+    "playwright.config.ts",
     // Asset-module declarations (vite/client: *.svg …). Tests that import
     // components transitively reach asset imports, and this file is outside
     // the test-glob include set.

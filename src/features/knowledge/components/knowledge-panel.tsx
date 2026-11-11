@@ -556,6 +556,7 @@ export function KnowledgePanel({ tabId }: { tabId?: string }) {
                   }}
                   documentId={`note:${activeEntryId}`}
                   initialMarkdown={editContent}
+                  label={pageTitle || "Page"}
                   onDirty={() => {
                     setIsDirty(true);
                   }}

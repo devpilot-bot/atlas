@@ -48,6 +48,8 @@ export interface TiptapEditorProps {
   onDirty?: () => void;
   className?: string;
   placeholder?: string;
+  /** The text field's accessible name: what the document is. */
+  label?: string;
 }
 
 /**
@@ -63,7 +65,7 @@ export interface TiptapEditorProps {
  *    previously-loaded document is synchronous (JSON, not markdown).
  */
 export const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(function TiptapEditor(
-  { documentId, initialMarkdown, editable = true, onDirty, className, placeholder },
+  { documentId, initialMarkdown, editable = true, onDirty, className, placeholder, label },
   ref,
 ) {
   const extensions = useMemo(() => buildExtensions({ placeholder }), [placeholder]);
@@ -134,6 +136,18 @@ export const TiptapEditor = forwardRef<TiptapEditorHandle, TiptapEditorProps>(fu
   useEffect(() => {
     editor?.setEditable(editable);
   }, [editor, editable]);
+
+  // The contenteditable is a `textbox` with no name of its own; ProseMirror
+  // owns its attributes, so the name goes through the editor's props.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.setOptions({
+      editorProps: {
+        ...editor.options.editorProps,
+        attributes: label ? { "aria-label": label } : {},
+      },
+    });
+  }, [editor, label]);
 
   // documentId change: swap in the new doc in place. We `flush()` the
   // current doc first so unsaved edits get a chance to persist —

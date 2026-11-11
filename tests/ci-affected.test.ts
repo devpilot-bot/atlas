@@ -232,6 +232,21 @@ describe("the CI plan", () => {
     }
   });
 
+  it("runs e2e for a change to what the browser loads, and only then", () => {
+    for (const f of ["src/App.tsx", "e2e/shell.spec.ts", "playwright.config.ts", "bun.lock"]) {
+      expect({ f, e2e: run([f]).e2e }).toEqual({ f, e2e: true });
+    }
+    for (const f of [
+      "crates/atlas-git/src/lib.rs",
+      "docs/adr/0001-x.md",
+      "tests/ci-affected.test.ts",
+    ]) {
+      expect({ f, e2e: run([f]).e2e }).toEqual({ f, e2e: false });
+    }
+    // A run that plans everything runs it too.
+    expect(run(["Cargo.lock"]).e2e).toBe(true);
+  });
+
   it("reads the engine dialect's packages out of ci.yml", () => {
     expect(dialect).toContain("atlas-engine-api");
     expect(dialect.filter((d) => !names.has(d))).toEqual([]);
@@ -294,6 +309,7 @@ describe("the CI workflow follows the plan", () => {
       /^ {8}include: \$\{\{ fromJSON\(needs\.changes\.outputs\.crates\) \}\}$/m,
     );
     expect(block("crates")).toMatch(/^ {4}if: needs\.changes\.outputs\.crates != '\[\]'$/m);
+    expect(block("e2e")).toMatch(/^ {4}if: needs\.changes\.outputs\.e2e == 'true'$/m);
   });
 
   it("makes ci-ok wait on every other job, always", () => {

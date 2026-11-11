@@ -104,6 +104,7 @@ jobs:
       app: ${{ steps.plan.outputs.app }}
       engine-dialect: ${{ steps.plan.outputs.engine-dialect }}
       crates: ${{ steps.plan.outputs.crates }}
+      e2e: ${{ steps.plan.outputs.e2e }}
       cache-write: ${{ steps.cache.outputs.write }}
     steps:
       - uses: actions/checkout@v5
@@ -179,6 +180,40 @@ jobs:
       # import or a bad alias fails here and nowhere earlier.
       - name: Build
         run: bun run build
+
+  e2e:
+    # The Playwright suite in `e2e/`: user journeys and axe, over the browser
+    # mock backend, in Chromium and in WebKit. WebKit stands in for the
+    # WebViews Atlas ships in (WKWebView, WebKitGTK); neither engine is one, so
+    # it catches what a WebKit engine breaks, not what one WebView does.
+    # Planned by path (E2E_INPUTS in scripts/ci-affected.mjs): only a change
+    # to what the browser loads can change its answer.
+    #
+    # On the Linux arm runner, like every other job: Playwright ships WebKit
+    # for Ubuntu 24.04 on arm64, and `--with-deps` apt-installs its GTK and
+    # GStreamer libraries. macOS would be the closer WebKit, but its minutes
+    # cost ten times as much for a suite that never touches native chrome.
+    name: e2e
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true'
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v2
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Install browsers
+        run: bunx playwright install --with-deps chromium webkit
+      - name: End-to-end
+        run: bun run test:e2e
+      # Traces of the failed tests (`trace: retain-on-failure`); open one with
+      # `bunx playwright show-trace <zip>`.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-results
+          path: test-results/
+          retention-days: 7
 
   app:
     # The Tauri app itself — the only thing here that compiles the ~400
@@ -523,7 +558,7 @@ jobs:
     # every PR that does not touch them. This job always runs and fails if
     # anything it waits on failed or was cancelled.
     name: CI passed
-    needs: [changes, frontend, app, app-linux, app-windows, engine-dialect, crates]
+    needs: [changes, frontend, e2e, app, app-linux, app-windows, engine-dialect, crates]
     if: always()
     runs-on: ubuntu-24.04-arm
     steps:

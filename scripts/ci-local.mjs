@@ -229,6 +229,7 @@ function plannedNames(argv) {
     for (const id of ["app", "app-linux", "app-windows"]) names.add(ciYml.jobs[id].name);
   }
   if (p.engineDialect) names.add(ciYml.jobs["engine-dialect"].name);
+  if (p.e2e) names.add(ciYml.jobs.e2e.name);
   return { names, why: `${p.reason} since ${base.slice(0, 12)}` };
 }
 
@@ -558,7 +559,7 @@ async function main(argv) {
     console.log(`ci-local: ${jobs.length} of ${all.length} jobs (${why})`);
   }
   // Fastest feedback first: the frontend takes about a minute, the app longest.
-  const rank = { frontend: 0, crates: 1, "engine-dialect": 2, "app-linux": 3, app: 4 };
+  const rank = { frontend: 0, e2e: 1, crates: 1, "engine-dialect": 2, "app-linux": 3, app: 4 };
   jobs.sort((a, b) => (rank[a.id] ?? 1) - (rank[b.id] ?? 1));
 
   // Ask for a runtime only when a job would use one, so a plan with nothing

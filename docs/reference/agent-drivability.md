@@ -7,7 +7,10 @@ the tree each should produce. Run it after a change to anything a user clicks.
 
 The tree is WebKit's, not Chromium's. `bun run dev` in Chrome shows a forgiving tree that
 hides most of the failures below, so the walk runs on `bun run dev:app`, never on the
-installed `/Applications/Atlas.app` (that runs on your real profile).
+installed `/Applications/Atlas.app` (that runs on your real profile). The cheap,
+automatic half of this is `e2e/accessibility.spec.ts`: axe over the mock backend in
+Chromium and WebKit, with today's known violations in `e2e/a11y.ts`. It catches markup
+rules; only this walk shows what a press actually does.
 
 ## Setup
 

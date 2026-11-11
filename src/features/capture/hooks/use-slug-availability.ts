@@ -18,6 +18,8 @@ export function useSlugAvailability(projectPath: string, orgId: string, slug: st
   useEffect(() => {
     const trimmed = slug.trim();
     if (!orgId || !trimmed) {
+      // Bump the sequence so a check still in flight can't land on an empty field.
+      ++seq.current;
       setState({ kind: "idle" });
       return;
     }

@@ -1,6 +1,6 @@
 export function normalizeUrl(url: string): string {
   const t = url.trim();
-  if (t.startsWith("http://") || t.startsWith("https://")) return t;
+  if (/^https?:\/\//i.test(t)) return t;
   return `https://${t}`;
 }
 

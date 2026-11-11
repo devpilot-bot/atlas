@@ -84,9 +84,13 @@ range.
 they work offline in Tauri. Desktop moves off the system font. Atlas Sans replaces Geist
 when it is ready.
 
-**Review surfaces.** The package has a Storybook. Desktop does not: its mock backend
-(`bun run dev`, `?scenario=…`) already shows composed screens with real stores. There is
-no visual-regression suite and no Storybook composition for now.
+**Review surfaces.** The package has a Storybook, and its a11y check runs at error
+level: a primitive is tested where it is defined. Desktop has no Storybook: its mock
+backend (`bun run dev`, `?scenario=…`) already shows composed screens with real stores.
+App-level screens are tested there. Playwright drives the mock backend's scenarios in
+Chromium and WebKit, with user journeys, coarse ARIA snapshots and axe (`e2e/`, desktop
+now; web follows in ATL-1010). There is no visual-regression suite and no Storybook
+composition for now.
 
 **Mobile is deferred.** The PWA and the Flutter retirement (spec D17) are out of scope
 until the team picks them up again.
@@ -120,6 +124,10 @@ until the team picks them up again.
   aliases, and the design-system ratchet bans the old spellings. App variables that are
   not theme keys (`--atlas-chat-column`, `--atlas-boot-*` and the like) keep the prefix.
 - `bun-singletons.test.ts` gains `@base-ui/react`, `motion` and `@tryatlas/design`.
+- Screen-level automation lives with each app, over its mock backend, not in the
+  package; the package's Storybook covers primitives. Desktop's axe run keeps an
+  allowlist of the violations it found on landing, each entry pointing at its fix
+  (ATL-1006, ATL-1007), and shrinks as they land.
 - The `?scenario=design-system` gallery shrinks once its primitives come from the package.
   It now shows only the active theme as desktop resolved it and desktop's own utilities,
   and links to Storybook for the rest.

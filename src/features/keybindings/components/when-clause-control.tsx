@@ -107,7 +107,7 @@ function WarningTooltipIcon({ label, children }: { label: string; children: Reac
       <span
         tabIndex={0}
         aria-label={label}
-        className="inline-flex size-control-xs shrink-0 items-center justify-center rounded text-warning outline-none"
+        className="inline-flex size-control-xs shrink-0 items-center justify-center rounded text-warning outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Icon icon={AlertTriangle} size="xs" />
       </span>

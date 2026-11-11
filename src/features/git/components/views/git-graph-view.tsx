@@ -210,11 +210,18 @@ function GraphBody({
           )}
           {rows.length === 0 && !loading && <EmptyState icon={GitCommit} title="No commits." />}
           {rows.length > 0 && (
-            <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+            // Layout boxes say so: WebKit keeps a role-less box between a
+            // listbox and its options, and loses the options' roles to it.
+            <div
+              role="presentation"
+              className="relative w-full"
+              style={{ height: virtualizer.getTotalSize() }}
+            >
               {items.map((v) => {
                 const row = rows[v.index];
                 return (
                   <div
+                    role="presentation"
                     key={row.sha}
                     data-index={v.index}
                     className="absolute top-0 left-0 w-full"

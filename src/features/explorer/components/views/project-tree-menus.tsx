@@ -1,4 +1,5 @@
 import { OpenInEditorContextItems } from "@/features/external-editor/components/open-in-editor-menu";
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import type { WorkingTreeChanges } from "@/features/git/lib/use-working-tree-changes";
 import { revealInFileManagerLabel } from "@/lib/platform";
 
@@ -109,51 +110,63 @@ export function ProjectTreeRowMenu({
       <OpenInEditorContextItems path={abs} />
       <ContextMenuSeparator />
       <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⌘X")}
         onClick={() =>
           setClipboard({ paths: targets.map((t) => absoluteOf(root, t.path)), isCut: true })
         }
       >
         Cut{count}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⌘X" />
         </ContextMenuShortcut>
       </ContextMenuItem>
       <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⌘C")}
         onClick={() =>
           setClipboard({ paths: targets.map((t) => absoluteOf(root, t.path)), isCut: false })
         }
       >
         Copy{count}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⌘C" />
         </ContextMenuShortcut>
       </ContextMenuItem>
-      <ContextMenuItem onClick={() => void duplicate(abs)}>
+      <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⌘D")}
+        onClick={() => void duplicate(abs)}
+      >
         Duplicate
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⌘D" />
         </ContextMenuShortcut>
       </ContextMenuItem>
       {clipboard && (
-        <ContextMenuItem onClick={() => paste(dirForPaste(row))}>
+        <ContextMenuItem
+          aria-keyshortcuts={ariaKeyShortcut("⌘V")}
+          onClick={() => paste(dirForPaste(row))}
+        >
           Paste
-          <ContextMenuShortcut>
+          <ContextMenuShortcut aria-hidden>
             <KbdCombo combo="⌘V" />
           </ContextMenuShortcut>
         </ContextMenuItem>
       )}
       <ContextMenuSeparator />
       <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⌥⌘C")}
         onClick={() => copyText(targets.map((t) => absoluteOf(root, t.path)).join("\n"))}
       >
         Copy Path{count}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⌥⌘C" />
         </ContextMenuShortcut>
       </ContextMenuItem>
-      <ContextMenuItem onClick={() => copyText(targets.map((t) => t.path).join("\n"))}>
+      <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⇧⌥⌘C")}
+        onClick={() => copyText(targets.map((t) => t.path).join("\n"))}
+      >
         Copy Relative Path{count}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⇧⌥⌘C" />
         </ContextMenuShortcut>
       </ContextMenuItem>
@@ -161,16 +174,22 @@ export function ProjectTreeRowMenu({
       {!row.ignored && (
         <ContextMenuItem onClick={() => ignore(row.path)}>Add to .gitignore</ContextMenuItem>
       )}
-      <ContextMenuItem onClick={() => setRenaming(row.path)}>
+      <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("↵")}
+        onClick={() => setRenaming(row.path)}
+      >
         Rename{which}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="↵" />
         </ContextMenuShortcut>
       </ContextMenuItem>
-      <ContextMenuItem onClick={() => setDeleteTargets(targets)}>
+      <ContextMenuItem
+        aria-keyshortcuts={ariaKeyShortcut("⌘⌫")}
+        onClick={() => setDeleteTargets(targets)}
+      >
         Delete{which}
         {count}
-        <ContextMenuShortcut>
+        <ContextMenuShortcut aria-hidden>
           <KbdCombo combo="⌘⌫" />
         </ContextMenuShortcut>
       </ContextMenuItem>

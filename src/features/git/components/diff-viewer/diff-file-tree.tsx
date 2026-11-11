@@ -261,7 +261,13 @@ export const DiffFileTree = memo(function DiffFileTree({
         aria-label="Changed files"
         className="min-h-0 flex-1 overflow-auto py-1"
       >
-        <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+        {/* `presentation`: a role-less box under a tree makes WebKit drop
+            the tree's role and every row's with it. */}
+        <div
+          role="presentation"
+          className="relative w-full"
+          style={{ height: virtualizer.getTotalSize() }}
+        >
           {virtualizer.getVirtualItems().map((item) => {
             const row = rows[item.index];
             const place = {

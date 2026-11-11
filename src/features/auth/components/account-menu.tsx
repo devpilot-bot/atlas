@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import { toast } from "sonner";
 import { KbdCombo } from "@tryatlas/design";
 
@@ -78,6 +79,7 @@ export function AccountMenu({
       signedIn={signedIn}
       side={side}
       settingsShortcut={settingsKeys ? <KbdCombo combo={settingsKeys} /> : undefined}
+      settingsShortcutAria={settingsKeys ? ariaKeyShortcut(settingsKeys) : undefined}
       themeMode={settings.themeMode}
       themeModes={THEME_MODES}
       onThemeModeChange={(themeMode) => void updateSettings({ themeMode })}

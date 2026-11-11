@@ -50,7 +50,7 @@ export function CompoundFilter({
       {...props}
       className={cn(
         "group inline-flex h-7 shrink-0 cursor-pointer items-center overflow-hidden rounded-full",
-        "border border-border bg-[var(--card)] text-xs outline-none",
+        "border border-border bg-[var(--card)] text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "transition-colors duration-fast hover:bg-element-hover",
         props.className,
       )}

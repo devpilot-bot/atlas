@@ -362,8 +362,12 @@ export function SidebarSessions() {
                 />
               ) : (
                 <>
-                  <ul
+                  {/* `role="list"` on a <div>, here and on the shelves: WebKit
+                      drops a <ul>'s list role once its markers are styled
+                      away, as Tailwind's reset does. */}
+                  <div
                     ref={pinnedBlockRef}
+                    role="list"
                     aria-label="Pinned sessions"
                     className={cn(
                       "flex flex-col",
@@ -371,16 +375,17 @@ export function SidebarSessions() {
                     )}
                   >
                     {showPinDropZone && pinned.length === 0 ? (
-                      <li
+                      <div
+                        role="listitem"
                         className={cn(
-                          "flex h-9 list-none items-center justify-center rounded-md border border-dashed text-xs",
+                          "flex h-9 items-center justify-center rounded-md border border-dashed text-xs",
                           drag?.pinnedIndex !== null
                             ? "border-primary/40 bg-primary/5 text-primary"
                             : "border-border text-muted-foreground",
                         )}
                       >
                         Drop to pin
-                      </li>
+                      </div>
                     ) : null}
                     {pinned.map((session) => (
                       <SessionRow
@@ -395,7 +400,7 @@ export function SidebarSessions() {
                         }
                       />
                     ))}
-                  </ul>
+                  </div>
                   {pinned.length > 0 && active.length > 0 ? (
                     <div aria-hidden className="mx-2 my-1 h-px bg-border-subtle" />
                   ) : null}
@@ -414,7 +419,10 @@ export function SidebarSessions() {
                       if (!session) return null;
                       const dragging = drag?.active === true && drag.threadId === session.threadId;
                       return (
-                        <ul
+                        // Layout only: the row's list item belongs to the list
+                        // above, not to a list of its own.
+                        <div
+                          role="presentation"
                           key={session.threadId}
                           className="absolute top-0 left-0 w-full"
                           style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
@@ -427,7 +435,7 @@ export function SidebarSessions() {
                             isDragging={dragging}
                             dropVerb={dragging ? dropVerb : null}
                           />
-                        </ul>
+                        </div>
                       );
                     })}
                   </div>

@@ -569,6 +569,7 @@ export function ProjectFileTree({
       root={root}
       header={header}
       truncated={searchResult?.truncated}
+      listed={ready && !(searchResult && searchResult.matchCount === 0) && display.length > 0}
       scrollRef={scrollRef}
       focused={focused}
       dropTarget={dropTarget}

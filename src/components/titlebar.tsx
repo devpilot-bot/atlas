@@ -621,7 +621,8 @@ function SidebarToggle({ flush = false, className }: { flush?: boolean; classNam
         onPointerEnter={sidebarOpen ? undefined : requestPeek}
         onPointerLeave={sidebarOpen ? undefined : releasePeek}
         aria-label={label}
-        aria-pressed={sidebarOpen}
+        // No `aria-pressed`: the label already says what a press does, and
+        // "Hide sidebar, pressed" would say the opposite.
         className={cn(
           "flex items-center justify-center rounded-md transition-colors duration-150 hover:bg-element-hover",
           flush ? "h-6 px-2" : "size-6",

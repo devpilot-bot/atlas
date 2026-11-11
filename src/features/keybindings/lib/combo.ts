@@ -281,3 +281,71 @@ function displayKey(c: Combo): string {
 export function displayLabel(c: Combo): string {
   return displayKeys(c).join(isWindows || isLinux ? "+" : "");
 }
+
+const GLYPH_TO_ARIA: Record<string, string> = {
+  "⌘": "Meta",
+  "⌥": "Alt",
+  "⇧": "Shift",
+  "⌃": "Control",
+  "↩": "Enter",
+  "↵": "Enter",
+  "⇥": "Tab",
+  "⌫": "Backspace",
+  "⌦": "Delete",
+  "↑": "ArrowUp",
+  "↓": "ArrowDown",
+  "←": "ArrowLeft",
+  "→": "ArrowRight",
+  "↖": "Home",
+  "↘": "End",
+  "⇞": "PageUp",
+  "⇟": "PageDown",
+};
+
+const WORD_TO_ARIA: Record<string, string> = {
+  ctrl: "Control",
+  cmd: "Meta",
+  win: "Meta",
+  super: "Meta",
+  alt: "Alt",
+  opt: "Alt",
+  shift: "Shift",
+  esc: "Escape",
+  space: "Space",
+  // `+` is the separator in `aria-keyshortcuts`, so the key goes by its name.
+  "+": "Plus",
+};
+
+/**
+ * A displayed chord ("⌥⌘C", "Ctrl+Shift+B", "↵") in `aria-keyshortcuts`
+ * syntax ("Alt+Meta+C"). A menu item hides its keycaps from its accessible
+ * name, so the name is the command alone, and announces the chord through
+ * this instead.
+ */
+export function ariaKeyShortcut(label: string): string {
+  // Split a word combo on its plus signs only when each part is a key, so
+  // "Ctrl++" and "⌘+" keep the plus key (as `@tryatlas/design`'s keycaps do).
+  const words = label.trim().split(/\+(?=.)/);
+  const parts = words.length > 1 && words.every(Boolean) ? words : [...label.trim()];
+  const keys: string[] = [];
+  let word = "";
+  const flush = () => {
+    if (!word) return;
+    keys.push(WORD_TO_ARIA[word.toLowerCase()] ?? word);
+    word = "";
+  };
+  for (const part of parts) {
+    const glyph = GLYPH_TO_ARIA[part];
+    if (glyph) {
+      flush();
+      keys.push(glyph);
+    } else if (part.length > 1) {
+      flush();
+      keys.push(WORD_TO_ARIA[part.toLowerCase()] ?? part);
+    } else {
+      word += part;
+    }
+  }
+  flush();
+  return keys.map((k) => (k.length === 1 ? k.toUpperCase() : k)).join("+");
+}

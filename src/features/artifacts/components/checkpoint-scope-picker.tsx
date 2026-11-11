@@ -232,7 +232,7 @@ function StripButton({ className, ...props }: React.ComponentProps<"button">) {
       type="button"
       {...props}
       className={cn(
-        "flex min-w-0 cursor-pointer items-center gap-2 truncate text-left outline-none",
+        "flex min-w-0 cursor-pointer items-center gap-2 truncate rounded-sm text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
         className,
       )}
     />

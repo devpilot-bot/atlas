@@ -9,6 +9,7 @@
 // The items follow the reference order: branch, pin, settle, snooze; rename,
 // read state, the project filter; copy, the editor, project settings; delete.
 
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import { useState, type ReactNode, type RefObject } from "react";
 import {
   Copy,
@@ -113,10 +114,15 @@ function SessionMenuItems({
           Un-settle session
         </ContextMenuItem>
       ) : (
-        <ContextMenuItem onClick={() => actions.settle(session)}>
+        <ContextMenuItem
+          aria-keyshortcuts={settleShortcut ? ariaKeyShortcut(settleShortcut) : undefined}
+          onClick={() => actions.settle(session)}
+        >
           <CircleCheck />
           Settle session
-          {settleShortcut ? <ContextMenuShortcut>{settleShortcut}</ContextMenuShortcut> : null}
+          {settleShortcut ? (
+            <ContextMenuShortcut aria-hidden>{settleShortcut}</ContextMenuShortcut>
+          ) : null}
         </ContextMenuItem>
       )}
       {settled ? null : session.snoozedUntil !== null ? (
@@ -330,7 +336,7 @@ export function SessionRowMenu({
       >
         {children}
       </ContextMenuTrigger>
-      <ContextMenuContent className="min-w-52">
+      <ContextMenuContent aria-label="Session actions" className="min-w-52">
         {target ? (
           <SessionMenuItems
             session={target}

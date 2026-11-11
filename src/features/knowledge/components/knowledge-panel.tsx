@@ -460,7 +460,7 @@ export function KnowledgePanel({ tabId }: { tabId?: string }) {
       )}
 
       {/* Main */}
-      <main className="flex min-w-0 flex-1 flex-col bg-background">
+      <div className="flex min-w-0 flex-1 flex-col bg-background">
         {activeRepoName ? (
           <>
             <RepoTopbar
@@ -580,7 +580,7 @@ export function KnowledgePanel({ tabId }: { tabId?: string }) {
             Select or create a note
           </div>
         )}
-      </main>
+      </div>
 
       {showInspector && activeEntry && !activeRepoName && (
         <>

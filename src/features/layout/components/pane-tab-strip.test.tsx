@@ -74,7 +74,7 @@ describe("a click is never a drag", () => {
     expect(onSelect).toHaveBeenCalledWith("b");
     expect(onMove).not.toHaveBeenCalled();
     // Never lifted into the dragging state.
-    expect(b.className).not.toContain("z-10");
+    expect(b.parentElement!.className).not.toContain("z-10");
   });
 
   it("lifts the tab once the pointer travels past the activation distance", () => {
@@ -89,7 +89,7 @@ describe("a click is never a drag", () => {
         clientY: 10,
       });
     });
-    expect(tabEl(container, "b").className).toContain("z-10");
+    expect(tabEl(container, "b").parentElement!.className).toContain("z-10");
     act(() => {
       fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
       fireEvent.pointerUp(document);
@@ -101,7 +101,7 @@ describe("a click is never a drag", () => {
     const b = tabEl(container, "b");
     fireEvent.pointerDown(b, { button: 1, clientX: 10, clientY: 10 });
     fireEvent.pointerMove(document, { clientX: 60, clientY: 10 });
-    expect(b.className).not.toContain("z-10");
+    expect(b.parentElement!.className).not.toContain("z-10");
     expect(onSelect).not.toHaveBeenCalled();
   });
 });

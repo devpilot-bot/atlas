@@ -11,6 +11,7 @@
 //    the main button.
 //  - Project scripts (`ProjectScriptsRow`).
 
+import { ariaKeyShortcut } from "@/features/keybindings/lib/combo";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, FolderOpen, Laptop } from "lucide-react";
 
@@ -82,7 +83,7 @@ function EnvironmentRow({ projectPath, workPath }: { projectPath: string; workPa
           <RowLabel>{environment?.name || "This device"}</RowLabel>
         </DetailsRow>
       </ContextMenuTrigger>
-      <ContextMenuContent>
+      <ContextMenuContent aria-label="Workspace actions">
         <ContextMenuItem onClick={() => void copyProjectPath(workPath)}>
           <Copy />
           Copy full path
@@ -117,21 +118,32 @@ function OpenInRow({ path }: { path: string }) {
       menu={
         <>
           {choices.map((e) => (
-            <DropdownMenuItem key={e.id} onClick={() => choose(e.id)}>
+            <DropdownMenuItem
+              key={e.id}
+              aria-keyshortcuts={
+                e.id === current && shortcut ? ariaKeyShortcut(shortcut.label) : undefined
+              }
+              onClick={() => choose(e.id)}
+            >
               <EditorIcon id={e.id} />
               <span className="min-w-0 flex-1 truncate">{e.label}</span>
               {e.id === current && <Check aria-label="Preferred" />}
               {e.id === current && shortcut && (
-                <DropdownMenuShortcut>{shortcut.label}</DropdownMenuShortcut>
+                <DropdownMenuShortcut aria-hidden>{shortcut.label}</DropdownMenuShortcut>
               )}
             </DropdownMenuItem>
           ))}
-          <DropdownMenuItem onClick={() => choose(SYSTEM_EDITOR_ID)}>
+          <DropdownMenuItem
+            aria-keyshortcuts={
+              current === SYSTEM_EDITOR_ID && shortcut ? ariaKeyShortcut(shortcut.label) : undefined
+            }
+            onClick={() => choose(SYSTEM_EDITOR_ID)}
+          >
             <FolderOpen />
             <span className="min-w-0 flex-1 truncate">{FILE_MANAGER}</span>
             {current === SYSTEM_EDITOR_ID && <Check aria-label="Preferred" />}
             {current === SYSTEM_EDITOR_ID && shortcut && (
-              <DropdownMenuShortcut>{shortcut.label}</DropdownMenuShortcut>
+              <DropdownMenuShortcut aria-hidden>{shortcut.label}</DropdownMenuShortcut>
             )}
           </DropdownMenuItem>
         </>

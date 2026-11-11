@@ -229,7 +229,7 @@ function RoundButton({
           "relative flex size-[22px] shrink-0 items-center justify-center rounded-full",
           // The page's own fill (black in a dark theme, white in a light one)
           // so the circle reads against the card; the strong border outlines it.
-          "border border-border-strong bg-background text-[var(--muted-foreground)] outline-none transition-colors",
+          "border border-border-strong bg-background text-[var(--muted-foreground)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
           disabled
             ? "cursor-default opacity-40"
             : "cursor-pointer hover:bg-element-hover hover:text-[var(--foreground)]",

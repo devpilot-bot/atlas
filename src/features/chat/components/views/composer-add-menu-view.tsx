@@ -115,7 +115,7 @@ export function ComposerAddMenuView({
       disabled={disabled}
       className={cn(
         "flex size-6.5 items-center justify-center rounded-full border border-border",
-        "bg-card text-secondary-foreground transition-colors outline-none",
+        "bg-card text-secondary-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
         disabled
           ? "opacity-50 cursor-default"
           : "hover:bg-element-hover hover:text-foreground cursor-pointer",

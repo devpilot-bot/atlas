@@ -138,6 +138,7 @@ function AskAgentBox({
 
   return (
     <PopoverContent
+      aria-label="Ask agent"
       data-ask-agent-box=""
       anchor={anchor}
       side="bottom"

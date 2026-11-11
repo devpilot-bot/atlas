@@ -130,7 +130,7 @@ export function AttachedMark() {
   return (
     <span
       title="The filtered project is attached to this session"
-      className="ms-1.5 shrink-0 text-2xs font-normal text-muted-foreground"
+      className="relative ms-1.5 shrink-0 text-2xs font-normal text-muted-foreground"
     >
       attached
     </span>

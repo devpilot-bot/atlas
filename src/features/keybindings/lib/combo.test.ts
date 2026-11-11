@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ariaKeyShortcut,
   comboFromEvent,
   displayKeys,
   displayLabel,
@@ -139,5 +140,22 @@ describe("display", () => {
     expect(displayKeys(parseCombo("shift+tab")!)).toEqual(["⇧", "⇥"]);
     expect(displayKeys(parseCombo("cmd+shift+=")!)).toEqual(["⇧", "⌘", "+"]);
     expect(displayLabel(parseCombo("cmd+,")!)).toBe("⌘,");
+  });
+});
+
+describe("ariaKeyShortcut", () => {
+  it.each([
+    ["⌥⌘C", "Alt+Meta+C"],
+    ["⇧⌥⌘C", "Shift+Alt+Meta+C"],
+    ["⌘⌫", "Meta+Backspace"],
+    ["↵", "Enter"],
+    ["F", "F"],
+    ["Ctrl+Shift+B", "Control+Shift+B"],
+    ["⌘1", "Meta+1"],
+    ["Esc", "Escape"],
+    ["⌘+", "Meta+Plus"],
+    ["Ctrl++", "Control+Plus"],
+  ])("%s → %s", (label, aria) => {
+    expect(ariaKeyShortcut(label)).toBe(aria);
   });
 });

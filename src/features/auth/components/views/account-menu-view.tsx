@@ -43,6 +43,7 @@ export function AccountMenuView<T extends string>({
   signedIn,
   side = "top",
   settingsShortcut,
+  settingsShortcutAria,
   themeMode,
   themeModes,
   onThemeModeChange,
@@ -67,6 +68,8 @@ export function AccountMenuView<T extends string>({
   /** Which way the menu opens from the avatar. */
   side?: "top" | "bottom";
   settingsShortcut?: ReactNode;
+  /** The same chord in `aria-keyshortcuts` syntax. */
+  settingsShortcutAria?: string;
   themeMode: T;
   themeModes: readonly ThemeModeOption<T>[];
   onThemeModeChange: (mode: T) => void;
@@ -99,10 +102,15 @@ export function AccountMenuView<T extends string>({
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem onClick={() => onOpenSection("general")}>
+        <DropdownMenuItem
+          aria-keyshortcuts={settingsShortcutAria}
+          onClick={() => onOpenSection("general")}
+        >
           <Settings />
           Settings
-          {settingsShortcut && <DropdownMenuShortcut>{settingsShortcut}</DropdownMenuShortcut>}
+          {settingsShortcut && (
+            <DropdownMenuShortcut aria-hidden>{settingsShortcut}</DropdownMenuShortcut>
+          )}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onOpenSection("privacy")}>
           <Shield />

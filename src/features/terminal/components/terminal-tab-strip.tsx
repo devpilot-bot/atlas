@@ -244,93 +244,100 @@ function TerminalTab({
         ? "Idle"
         : "Starting…";
 
+  // The close button is the tab's sibling, not its child: inside a
+  // `role="tab"` it would be folded into the tab and not pressable alone.
   return (
-    <div
-      role="tab"
-      tabIndex={0}
-      aria-selected={active}
-      aria-label={`Terminal ${position}, ${where}, ${status}`}
-      title={`${where}\n${status}`}
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        onDragStart();
-      }}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.preventDefault();
-        onDrop();
-      }}
-      onClick={onSelect}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+    <div role="presentation" className="group/tab relative flex max-w-56 shrink-0">
+      <div
+        role="tab"
+        tabIndex={0}
+        aria-selected={active}
+        aria-label={`Terminal ${position}, ${where}, ${status}`}
+        title={`${where}\n${status}`}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.effectAllowed = "move";
+          onDragStart();
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
           e.preventDefault();
-          onSelect();
-        }
-      }}
-      // Middle-click must not paste the primary selection on Linux, nor
-      // start an autoscroll elsewhere.
-      onMouseDown={(e) => {
-        if (e.button === 1) e.preventDefault();
-      }}
-      onAuxClick={(e) => {
-        if (e.button === 1 && closable) {
-          e.preventDefault();
-          onClose();
-        }
-      }}
-      className={cn(
-        // The side panel's tab (`pane-tab.tsx`): status glyph on the left, which
-        // turns into the close button on hover, then the directory.
-        "group/tab flex h-6 max-w-56 shrink-0 cursor-pointer items-center gap-2 rounded-md px-2.5 text-xs outline-none select-none",
-        "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring",
-        active
-          ? "bg-element-active text-foreground"
-          : "bg-element-hover text-muted-foreground hover:text-secondary-foreground",
-        summary.exited && "opacity-60",
-      )}
-    >
-      <span className="relative flex size-[12px] shrink-0 items-center justify-center">
-        <span
-          className={cn(
-            "flex items-center justify-center",
-            closable && "group-hover/tab:invisible",
-          )}
-        >
-          {/* Dashed ring at rest; the same ring turning while a command runs.
+          onDrop();
+        }}
+        onClick={onSelect}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSelect();
+          }
+        }}
+        // Middle-click must not paste the primary selection on Linux, nor
+        // start an autoscroll elsewhere.
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault();
+        }}
+        onAuxClick={(e) => {
+          if (e.button === 1 && closable) {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        className={cn(
+          // The side panel's tab (`pane-tab.tsx`): status glyph on the left, which
+          // turns into the close button on hover, then the directory.
+          "flex h-6 min-w-0 cursor-pointer items-center gap-2 rounded-md px-2.5 text-xs outline-none select-none",
+          "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring",
+          active
+            ? "bg-element-active text-foreground"
+            : "bg-element-hover text-muted-foreground group-hover/tab:text-secondary-foreground",
+          summary.exited && "opacity-60",
+        )}
+      >
+        <span className="relative flex size-[12px] shrink-0 items-center justify-center">
+          <span
+            className={cn(
+              "flex items-center justify-center",
+              closable && "group-hover/tab:invisible",
+            )}
+          >
+            {/* Dashed ring at rest; the same ring turning while a command runs.
               It turns as an even, whole-pixel box on its own layer: an odd
               size (it was 11px) puts the centre on a half pixel, which is
               re-snapped to the pixel grid every frame and reads as a wobble. */}
-          <span
-            className={cn(
-              "flex size-[12px] items-center justify-center",
-              summary.command !== null
-                ? "animate-spin text-foreground will-change-transform"
-                : "text-muted-foreground",
-            )}
-          >
-            <CircleDashed size={12} aria-hidden />
+            <span
+              className={cn(
+                "flex size-[12px] items-center justify-center",
+                summary.command !== null
+                  ? "animate-spin text-foreground will-change-transform"
+                  : "text-muted-foreground",
+              )}
+            >
+              <CircleDashed size={12} aria-hidden />
+            </span>
           </span>
         </span>
-        {closable ? (
-          <button
-            type="button"
-            aria-label="Close terminal"
-            draggable={false}
-            onMouseDown={(e) => {
-              if (e.button === 0) e.preventDefault();
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-            className="absolute -inset-0.5 hidden items-center justify-center rounded-sm text-muted-foreground hover:bg-element-selected hover:text-foreground group-hover/tab:flex"
-          >
-            <X size={12} />
-          </button>
-        ) : null}
-      </span>
-      <span className="min-w-0 truncate font-mono">{where}</span>
+        <span className="min-w-0 truncate font-mono">{where}</span>
+      </div>
+      {closable ? (
+        <button
+          type="button"
+          // Out of the Tab order, as it was while hidden: it is invisible
+          // until hover. Assistive clients still press it.
+          tabIndex={-1}
+          aria-label={`Close terminal ${position}`}
+          draggable={false}
+          onMouseDown={(e) => {
+            if (e.button === 0) e.preventDefault();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="absolute top-1 left-2 flex size-4 items-center justify-center rounded-sm text-muted-foreground opacity-0 hover:bg-element-selected hover:text-foreground group-hover/tab:opacity-100"
+        >
+          <X size={12} />
+        </button>
+      ) : null}
     </div>
   );
 }

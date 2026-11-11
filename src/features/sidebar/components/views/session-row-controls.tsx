@@ -77,7 +77,7 @@ export function rowSurfaceClassName(props: {
   isDragging: boolean;
 }): string {
   return cn(
-    "group/sidebar-row relative w-full cursor-pointer overflow-hidden rounded-md text-left outline-none select-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+    "group/sidebar-row relative w-full cursor-pointer overflow-hidden rounded-md text-left select-none",
     props.isActive
       ? "bg-element-selected text-foreground"
       : props.shouldRecede
@@ -87,6 +87,35 @@ export function rowSurfaceClassName(props: {
       props.status === "working" &&
       "opacity-70 transition-opacity hover:opacity-100 focus-within:opacity-100 motion-reduce:transition-none",
     props.isDragging && "bg-element-selected text-foreground opacity-100 shadow-lg",
+  );
+}
+
+/**
+ * The row's button: an empty box filling the row, under its content, and the
+ * row's one Tab stop. The row's controls (snooze, Settle, the pull request
+ * badge) are its siblings, not its children: inside a `role="button"` they
+ * would be nested controls, and WebKit delivers an accessibility press to
+ * whatever control sits at the button's centre, so pressing the row opened
+ * the snooze menu instead of the session. A press on this empty box lands on
+ * the box itself and bubbles to the row's click handler, as a click on the
+ * row's content does.
+ */
+export function RowPressTarget(props: {
+  label: string;
+  current: boolean;
+  testId: string;
+  onKeyDown: (event: KeyboardEvent) => void;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={props.label}
+      aria-current={props.current || undefined}
+      data-testid={props.testId}
+      onKeyDown={props.onKeyDown}
+      className="absolute inset-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    />
   );
 }
 

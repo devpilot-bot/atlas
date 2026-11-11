@@ -27,12 +27,13 @@ export function SurfaceLauncherView({
           {surfaces.map((surface) => (
             <button
               key={surface.type}
+              aria-keyshortcuts={surface.key}
               onClick={() => onPick(surface)}
               className="flex h-8 w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 text-left text-sm text-secondary-foreground transition-colors hover:bg-element-hover hover:text-foreground"
             >
               <surface.icon size={16} className="shrink-0" />
               <span className="min-w-0 flex-1 truncate">{surface.label}</span>
-              <Kbd>{surface.key}</Kbd>
+              <Kbd aria-hidden>{surface.key}</Kbd>
             </button>
           ))}
         </div>

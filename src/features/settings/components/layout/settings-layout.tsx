@@ -32,6 +32,7 @@ import {
   type ScopedSetting,
 } from "../../lib/use-scoped-setting";
 import { ScopeSentence } from "./scope-sentence";
+import { SettingRowTitle } from "./setting-row-title";
 import { Icon, IconButton, Hint } from "@tryatlas/design";
 
 export function SettingsPage({
@@ -219,6 +220,10 @@ export function SettingsRow({
     ? (scoped.lockedReason ?? GLOBAL_ONLY_REASON)
     : disabledReasonProp;
   const rowTitle = title ?? meta?.title;
+  const resetName = resetLabel(
+    scope !== null,
+    typeof rowTitle === "string" ? rowTitle : (setting ?? ""),
+  );
   // A tighten-locked row keeps its reset: the override it can drop is
   // redundant, and dropping it is the one change still allowed.
   const showReset =
@@ -271,7 +276,9 @@ export function SettingsRow({
                 <IconButton
                   icon={Undo2}
                   size="xs"
-                  label={`${typeof rowTitle === "string" ? rowTitle : setting}: ${scoped.resetLabel}`}
+                  label={resetName}
+                  // Named here too: Hint names an unnamed trigger after its own label.
+                  aria-label={resetName}
                   onClick={scoped.reset}
                 />
               </Hint>
@@ -284,13 +291,23 @@ export function SettingsRow({
         </div>
         {controlNode && (
           <div className="flex w-full min-w-0 shrink-0 items-center gap-2 @min-[32rem]/settings-row:w-auto @min-[32rem]/settings-row:justify-end">
-            {controlNode}
+            {/* The row's own control only: `children` may hold controls
+                bound to other settings, named by their own rows. */}
+            <SettingRowTitle.Provider value={typeof rowTitle === "string" ? rowTitle : undefined}>
+              {controlNode}
+            </SettingRowTitle.Provider>
           </div>
         )}
       </div>
       {children && <div className="pt-3">{children}</div>}
     </div>
   );
+}
+
+/** The reset button's name: one per row, so each says which setting it
+ *  resets. Its tooltip keeps the short form. */
+function resetLabel(projectScope: boolean, title: string): string {
+  return projectScope ? `Use the value for all projects for ${title}` : `Reset ${title} to default`;
 }
 
 /**

@@ -312,7 +312,10 @@ export const KnowledgeTree = forwardRef<KnowledgeTreeHandle, KnowledgeTreeProps>
         onKeyDown={onTreeKeyDown}
         className="flex-1 overflow-auto hide-scrollbar px-1.5 pb-2 min-h-0"
       >
-        <div role="none" style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+        <div
+          role="presentation"
+          style={{ height: virtualizer.getTotalSize(), position: "relative" }}
+        >
           {virtualizer.getVirtualItems().map((virtualRow) => {
             const node = flat[virtualRow.index];
             const id = treeIdOf(node);

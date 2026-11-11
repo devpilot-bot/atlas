@@ -164,6 +164,8 @@ export function NewKeybindingRow({ onDone }: { onDone: (saved: ActionId | null) 
             icon={X}
             size="sm"
             label="Cancel new keybinding"
+            // Named here too: Hint names an unnamed trigger after its own label.
+            aria-label="Cancel new keybinding"
             onClick={() => onDone(null)}
           />
         </Hint>

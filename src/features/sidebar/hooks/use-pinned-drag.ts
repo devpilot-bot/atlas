@@ -72,7 +72,7 @@ function commitDrop(session: SidebarSession, state: DragState, list: SidebarList
  *  time through `listRef`. */
 export function usePinnedDrag(listRef: RefObject<SidebarListSnapshot>) {
   const [drag, setDrag] = useState<DragState | null>(null);
-  const pinnedBlockRef = useRef<HTMLUListElement>(null);
+  const pinnedBlockRef = useRef<HTMLDivElement>(null);
   // The click that follows a drag's pointerup is not an open.
   const suppressClickRef = useRef(false);
 

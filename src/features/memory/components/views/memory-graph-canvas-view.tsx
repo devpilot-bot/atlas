@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { GraphNodeList } from "@/components/graph-node-list";
 import { Application } from "pixi.js";
 import { destroyPixiApp, registerPixiApp } from "@/lib/pixi-app";
 import { GraphRuler, type Viewport } from "@/components/graph-ruler";
@@ -71,6 +72,12 @@ export function MemoryGraphCanvasView({
           onLayoutSave={onLayoutSave}
         />
       )}
+      <GraphNodeList
+        label="Memories in the graph"
+        nodes={graph.nodes}
+        selectedId={selectedId}
+        onActivate={onActivate}
+      />
     </div>
   );
 }

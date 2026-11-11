@@ -514,7 +514,7 @@ export function SessionPullRequestsPanel({
               })}
             </div>
           </ContextMenuTrigger>
-          <ContextMenuContent>
+          <ContextMenuContent aria-label="Pull request actions">
             {menuLink ? (
               <SessionPullRequestMenuItems
                 Item={ContextMenuItem}

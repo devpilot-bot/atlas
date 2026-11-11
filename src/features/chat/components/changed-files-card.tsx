@@ -346,7 +346,7 @@ const ChangedFilesTree = memo(function ChangedFilesTree({
         )}
       </ContextMenuTrigger>
       {menuFile && (
-        <ContextMenuContent>
+        <ContextMenuContent aria-label="File actions">
           <ContextMenuItem onClick={() => openTurnDiff(turnKey, menuFile.source)}>
             Show diff
           </ContextMenuItem>

@@ -57,6 +57,13 @@ export interface ProjectTreeRowProps {
   onRenameCancel: () => void;
 }
 
+/** A row's hover action. Narrowed to nothing and transparent at rest, not
+ *  `hidden`: it stays in the accessibility tree, so an assistive client can
+ *  press it without hovering. The negative margin cancels the row's gap
+ *  while it takes no room. */
+const ROW_ACTION =
+  "-ml-1 flex h-4 w-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 hover:bg-element-hover hover:text-foreground group-hover:ml-0 group-hover:w-4 group-hover:opacity-100";
+
 export const ProjectTreeRow = memo(function ProjectTreeRow({
   row,
   absPath,
@@ -86,6 +93,9 @@ export const ProjectTreeRow = memo(function ProjectTreeRow({
     <div
       id={domId}
       role="treeitem"
+      // The name alone: from its contents it would take in the hover
+      // buttons' labels too.
+      aria-label={row.name}
       aria-level={row.depth + 1}
       aria-expanded={isDir ? expanded : undefined}
       aria-selected={selected}
@@ -144,8 +154,13 @@ export const ProjectTreeRow = memo(function ProjectTreeRow({
         />
       ) : (
         // One line, cut with an ellipsis at the end; the full path is the
-        // row's tooltip.
+        // row's tooltip. `role="button"` is for assistive clients: WebKit
+        // fires no DOM event when one selects or expands an ARIA tree item,
+        // but pressing a button inside it is a click, which bubbles to the
+        // tree's own handler. Not focusable: focus stays on the tree, which
+        // moves through the rows with `aria-activedescendant`.
         <span
+          role="button"
           className={cn(
             "min-w-0 flex-1 truncate font-sans text-sm",
             isDir && "text-foreground",
@@ -185,7 +200,7 @@ export const ProjectTreeRow = memo(function ProjectTreeRow({
               data-tree-action="ask"
               aria-label={`Ask agent about ${row.name}`}
               title="Ask agent about this file"
-              className="hidden size-4 items-center justify-center rounded text-muted-foreground group-hover:flex hover:bg-element-hover hover:text-foreground"
+              className={ROW_ACTION}
             >
               <MessageSquarePlus size={11} />
             </button>
@@ -197,7 +212,7 @@ export const ProjectTreeRow = memo(function ProjectTreeRow({
               data-tree-action="diff"
               aria-label={`Show changes in ${row.name}`}
               title="Show changes"
-              className="hidden size-4 items-center justify-center rounded text-muted-foreground group-hover:flex hover:bg-element-hover hover:text-foreground"
+              className={ROW_ACTION}
             >
               <GitCompare size={11} />
             </button>

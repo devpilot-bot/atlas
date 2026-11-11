@@ -97,6 +97,7 @@ export const CommitRowView = memo(function CommitRowView({
 
   return (
     <div
+      role="presentation"
       data-sha={row.sha}
       onClick={() => onSelect(row.sha)}
       className={cn(
@@ -132,7 +133,10 @@ export const CommitRowView = memo(function CommitRowView({
       </svg>
 
       {/* Row content — flush against the gutter; per-row gutter sizing handles the offset */}
-      <div className={cn("flex min-w-0 flex-1 items-center gap-2", compact ? "pr-3" : "pr-4")}>
+      <div
+        role="presentation"
+        className={cn("flex min-w-0 flex-1 items-center gap-2", compact ? "pr-3" : "pr-4")}
+      >
         {/* The option is the commit's refs and subject; the Ask button and
             the metadata sit beside it, since an option's children are
             presentational to assistive tech. */}
@@ -155,7 +159,7 @@ export const CommitRowView = memo(function CommitRowView({
           <AskAgentButton
             context={[commitContext(row.sha, row.message)]}
             suggestions={ROW_ASKS}
-            label="Ask agent about this commit"
+            label={`Ask agent about commit ${row.shortSha}`}
           />
         </span>
         {/* Compact (the History section) keeps one column: the author's face,

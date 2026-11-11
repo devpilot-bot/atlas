@@ -8,16 +8,9 @@ import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import type { AppSettings, BooleanSettingKey } from "../../lib/app-settings";
 import { settingMeta } from "../../lib/settings-sections";
+import { useSettingName } from "./setting-row-title";
 import { useScopedSetting } from "../../lib/use-scoped-setting";
 import { Switch, Select, type SelectOption, IconButton, Input, Slider } from "@tryatlas/design";
-
-/** "Needs you: System notification", not just "System notification": one page
- *  can hold several rows with the same title, one per section, and a screen
- *  reader moving between controls hears only this name. */
-function accessibleName(setting: keyof AppSettings): string {
-  const meta = settingMeta(setting);
-  return `${meta.section}: ${meta.title}`;
-}
 
 export function SettingSwitch({
   setting,
@@ -30,11 +23,12 @@ export function SettingSwitch({
   onChange?: (next: boolean) => void;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   return (
     <Switch
       checked={scoped.value}
       disabled={disabled || scoped.globalOnly}
-      aria-label={accessibleName(setting)}
+      aria-label={name}
       onCheckedChange={(next) => {
         scoped.set(next);
         onChange?.(next);
@@ -62,12 +56,13 @@ export function SettingSelect<K extends EnumKey>({
   disabled?: boolean;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   return (
     <Select
       value={scoped.value as AppSettings[K] & string}
       options={options}
       disabled={disabled || scoped.globalOnly}
-      aria-label={accessibleName(setting)}
+      aria-label={name}
       onValueChange={(next) => scoped.set(next as AppSettings[K])}
     />
   );
@@ -99,10 +94,10 @@ export function SettingStepper({
   disabled?: boolean;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   const { min = -Infinity, max = Infinity } = settingMeta(setting);
   const value = scoped.value as number;
   const off = disabled || scoped.globalOnly;
-  const name = accessibleName(setting);
   const step = (by: number) => scoped.set(Math.min(max, Math.max(min, value + by)));
   return (
     <div className="flex items-center gap-1">
@@ -150,6 +145,7 @@ export function SettingText({
   disabled?: boolean;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   const saved = scoped.value as string;
   const [draft, setDraft] = useState(saved);
   useEffect(() => setDraft(saved), [saved]);
@@ -164,7 +160,7 @@ export function SettingText({
       placeholder={placeholder}
       spellCheck={false}
       disabled={disabled || scoped.globalOnly}
-      aria-label={accessibleName(setting)}
+      aria-label={name}
       onChange={(event) => setDraft(event.target.value)}
       onBlur={commit}
       onKeyDown={(event) => {
@@ -189,6 +185,7 @@ export function SettingTextarea({
   maxLength?: number;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   const saved = scoped.value as string;
   const [draft, setDraft] = useState(saved);
   useEffect(() => setDraft(saved), [saved]);
@@ -203,7 +200,7 @@ export function SettingTextarea({
       maxLength={maxLength}
       placeholder={placeholder}
       disabled={scoped.globalOnly}
-      aria-label={accessibleName(setting)}
+      aria-label={name}
       onChange={(event) => setDraft(event.target.value)}
       onBlur={commit}
       onKeyDown={(event) => {
@@ -229,6 +226,7 @@ export function SettingSlider({
   onPreview?: (value: number) => void;
 }) {
   const scoped = useScopedSetting(setting);
+  const name = useSettingName(setting);
   const { min = 0, max = 100 } = settingMeta(setting);
   const saved = scoped.value as number;
   const [draft, setDraft] = useState(saved);
@@ -245,7 +243,7 @@ export function SettingSlider({
         max={max}
         step={step}
         disabled={scoped.globalOnly}
-        aria-label={accessibleName(setting)}
+        aria-label={name}
         onValueChange={(next) => {
           setDraft(next);
           onPreview?.(next);

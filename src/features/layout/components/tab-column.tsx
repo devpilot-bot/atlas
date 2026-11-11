@@ -221,7 +221,6 @@ function PanelPlacementControls() {
           label={maximizeLabel}
           size="sm"
           iconSize="md"
-          aria-pressed={maximized}
           onClick={() => setSurfaces(maximized ? "shown" : "expanded")}
         />
       </HintItem>
@@ -279,10 +278,14 @@ function SurfaceAdd({ groupId }: { groupId: string }) {
         }}
       >
         {SURFACES.map((surface) => (
-          <DropdownMenuItem key={surface.type} onClick={() => openSurface(surface, groupId)}>
+          <DropdownMenuItem
+            key={surface.type}
+            aria-keyshortcuts={surface.key}
+            onClick={() => openSurface(surface, groupId)}
+          >
             <surface.icon size={14} />
             {surface.label}
-            <DropdownMenuShortcut>{surface.key}</DropdownMenuShortcut>
+            <DropdownMenuShortcut aria-hidden>{surface.key}</DropdownMenuShortcut>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

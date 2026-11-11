@@ -24,7 +24,7 @@ export function DiffFileContextMenuContent({
   const items = diffFileMenuItems(target);
   const abs = target.absPath;
   return (
-    <ContextMenuContent>
+    <ContextMenuContent aria-label="File actions">
       {items.map((item, index) => {
         switch (item) {
           case "separator":

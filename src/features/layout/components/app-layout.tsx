@@ -3,6 +3,7 @@ import { useProjectStore } from "@/features/projects/stores/project-store";
 import { AppSidebar, SidebarPeek } from "@/features/sidebar/components/app-sidebar";
 import { useProjectGitPrefetch } from "@/features/projects/lib/use-project-prefetch";
 import { useSettingsNav } from "@/features/settings/stores/settings-nav-store";
+import { useLayoutStore } from "@/features/layout/stores/layout-store";
 import { OrgAgentFloat } from "@/features/org-agent/components/org-agent-float";
 import { CenterPanel } from "./center-panel";
 import { DestinationScreen } from "./destination-screen";
@@ -20,6 +21,10 @@ export function AppLayout() {
   const [settingsMounted, setSettingsMounted] = useState(settingsOpen);
   if (settingsOpen && !settingsMounted) setSettingsMounted(true);
   const sidebarOpen = useProjectStore.use.sidebarOpen();
+  // What a cover hides must leave the accessibility tree and the Tab order
+  // too: `inert`, not just a painted layer on top. Settings covers the whole
+  // window; a destination covers the session columns only.
+  const destinationShown = useLayoutStore.use.destinationShown();
 
   // Warm the project-pane git data at startup so the first open is smooth.
   useProjectGitPrefetch();
@@ -38,11 +43,13 @@ export function AppLayout() {
           which on an AMOLED theme are ten and zero. The hairline tokens meant
           to separate a card from the surface it sits on disappear here. */}
       {sidebarOpen ? (
-        <div className="h-screen w-[244px] shrink-0">
+        <div className="h-screen w-[244px] shrink-0" inert={settingsOpen}>
           <AppSidebar />
         </div>
       ) : (
-        <SidebarPeek />
+        <div className="contents" inert={settingsOpen}>
+          <SidebarPeek />
+        </div>
       )}
 
       {/*
@@ -64,19 +71,26 @@ export function AppLayout() {
           by its content, but the content still contributes to the group's
           intrinsic width. Capping the column here is what keeps the shell
           inside the window no matter what any panel renders. */}
-      <div className="flex flex-col flex-1 min-h-0 min-w-0">
+      <main className="flex flex-col flex-1 min-h-0 min-w-0" inert={settingsOpen}>
+        {/* The window's title, for the headings outline: the visible chrome
+            names the session and the panes, never the app. */}
+        <h1 className="sr-only">Atlas</h1>
         {/* No top bar row: each column's header is its slice of the bar (see
             `columnChrome`). `relative` for the destination, which covers the
             columns while the session runs underneath (ADR-0024). */}
         <div className="relative flex-1 min-h-0">
-          <CenterPanel />
+          <div className="h-full w-full" inert={destinationShown}>
+            <CenterPanel />
+          </div>
           <DestinationScreen />
         </div>
-      </div>
+      </main>
 
       {/* The Organisation agent's floating messenger: a conversation
           minimised out of its side panel, over the bottom-right corner. */}
-      <OrgAgentFloat />
+      <div className="contents" inert={settingsOpen}>
+        <OrgAgentFloat />
+      </div>
 
       {settingsMounted && (
         <Suspense fallback={null}>

@@ -40,13 +40,13 @@ This is a split, not a move. Everything else Atlas persists stays in the
 platform data directory, because none of it is a document anyone should be
 editing:
 
-| Stays in `app_config_dir()` | Why |
-|---|---|
-| `state.json` | Projects, recents, orgs — machine-managed. (Its keys still say `workspaces` / `activeWorkspaceId`: storage keys, not the concept.) |
-| `device.json` | Telemetry identity; see the exclusions below. |
-| `telemetry.json` | Self-hosted PostHog override. |
-| `models-pricing.json`, `byok-usage.jsonl` | Caches. |
-| `session-chat/`, comms state | Session data. |
+| Stays in `app_config_dir()`               | Why                                                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `state.json`                              | Projects, recents, orgs — machine-managed. (Its keys still say `workspaces` / `activeWorkspaceId`: storage keys, not the concept.) |
+| `device.json`                             | Telemetry identity; see the exclusions below.                                                                                      |
+| `telemetry.json`                          | Self-hosted PostHog override.                                                                                                      |
+| `models-pricing.json`, `byok-usage.jsonl` | Caches.                                                                                                                            |
+| `session-chat/`, comms state              | Session data.                                                                                                                      |
 
 In application code, call `ConfigManager::config_path()` (Rust) or the
 `get_atlas_config_info` command (frontend) rather than rebuilding the path.
@@ -117,7 +117,7 @@ uiScale = 1.0
 
 Note `updaterIgnoredVersion`: a key that serializes to nothing still gets its
 comment, carried down onto the next key that is present. Otherwise the one key
-whose *absence* carries meaning would be the one key nothing explains.
+whose _absence_ carries meaning would be the one key nothing explains.
 
 Comments are only ever written into a file Atlas generates — first run, or
 "Recreate defaults" — and above a key Atlas adds to an existing file. Atlas never injects them into a file a user or agent
@@ -128,12 +128,12 @@ wrote; `toml_edit` just preserves whatever comments are already there.
 `src-tauri/settings-registry.toml` is the one hand-edited description of every key
 under `[settings]`. `bun run settings:gen` writes everything derived from it:
 
-| Output | What it is |
-|---|---|
-| `src-tauri/src/state/settings_docs.gen.rs` | `SETTINGS_DOCS`, the comment written above each key in a fresh file |
+| Output                                               | What it is                                                                                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `src-tauri/src/state/settings_docs.gen.rs`           | `SETTINGS_DOCS`, the comment written above each key in a fresh file                                                                   |
 | `src/features/settings/lib/settings-registry.gen.ts` | the TS `AppSettings` type, `DEFAULT_SETTINGS`, and per-key metadata (page, section, title, status) for the Settings UI and its search |
-| `docs/reference/settings.json` | the same metadata, read by the docs site (`bun run sync:settings` in `docs-atlas`) |
-| the schema table below | between the `generated:settings` markers |
+| `docs/reference/settings.json`                       | the same metadata, read by the docs site (`bun run sync:settings` in `docs-atlas`)                                                    |
+| the schema table below                               | between the `generated:settings` markers                                                                                              |
 
 The Rust `AppSettings` struct, its serde defaults and `SettingsPatch` stay
 hand-written. `the_settings_registry_matches_app_settings` holds them to the
@@ -215,6 +215,7 @@ bookkeeping).
 | `terminalFontFamily` | string | `""` | Appearance › Typography › Terminal font | a CSS font-family list, at most 200 characters, with no `{`, `}`, `;`, `<` or `>`; empty uses the code font |
 | `editorFontSize` | integer | `13` | Appearance › Typography › Editor font size | 8 ≤ n ≤ 32 |
 | `terminalFontSize` | integer | `13` | Appearance › Typography › Terminal font size | 8 ≤ n ≤ 32 |
+| `terminalScreenReader` | boolean | `false` | Appearance › Typography › Terminal screen reader support | — |
 | `diffIgnoreWhitespace` | boolean | `false` | Source Control › Diffs › Hide whitespace changes | — |
 | `diffFilesCollapsed` | boolean | `true` | Source Control › Diffs › Start files collapsed | — |
 | `diffPalette` | `"theme"` \| `"blue-orange"` | `"theme"` | Appearance › Interface › Diff colours | exactly one of these two strings |
@@ -303,14 +304,14 @@ a rule. The block sits between these two lines, each on a line of its own:
 evolve on separate timelines. Current: `CONFIG_SCHEMA_VERSION = 1`
 (`state/atlas_config.rs`).
 
-- A file with a *lower* version is meant to run through sequential, idempotent
+- A file with a _lower_ version is meant to run through sequential, idempotent
   migrations, the same pattern `AppState::migrate()` already uses for
   `state.json`. **Not yet implemented as code** — `CONFIG_SCHEMA_VERSION` is
   still `1`, so there is nothing to migrate from today; a real v1→v2 bump is
   what will exercise this path for the first time. Field-level
   `#[serde(default = ...)]` already covers the common case (a new key added
   within v1) without needing a version bump at all.
-- A file with a *higher* version than this Atlas build supports is rejected
+- A file with a _higher_ version than this Atlas build supports is rejected
   outright — last-known-good settings stay active, the file is left alone.
   (This is what happens when a newer Atlas version's config is opened by an
   older build.)
@@ -392,7 +393,7 @@ Both the boot-time status (carried on `bootstrap_app_state`'s
 there, so a config that failed to load at startup can't quietly serve
 defaults — including flipping `shareTelemetry` back on — without saying so.
 
-A file that exists but cannot be *read* at all (permissions, a transient I/O
+A file that exists but cannot be _read_ at all (permissions, a transient I/O
 fault) is treated as `"usingDefaults"`, not as an absent file — as is a
 config directory that can't be resolved, and a first-run write that fails.
 

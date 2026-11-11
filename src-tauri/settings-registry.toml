@@ -1118,6 +1118,22 @@ everything else.
 validation = "8 ≤ n ≤ 32"
 
 [[setting]]
+key = "terminalScreenReader"
+type = "boolean"
+default = false
+status = "live"
+page = "appearance"
+section = "Typography"
+title = "Terminal screen reader support"
+summary = "Keep an accessible copy of the terminal's screen, for screen readers and other assistive tools."
+doc = """
+Keep an accessible copy of the terminal's screen, so a screen reader or an
+assistive tool can read its lines and hear new output. Off by default: the copy
+costs work on every write.
+"""
+validation = "—"
+
+[[setting]]
 key = "diffIgnoreWhitespace"
 type = "boolean"
 default = false

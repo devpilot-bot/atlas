@@ -327,6 +327,11 @@ export interface AppSettings {
    */
   terminalFontSize: number;
   /**
+   * Keep an accessible copy of the terminal's screen, so a screen reader or an assistive tool
+   * can read its lines and hear new output. Off by default: the copy costs work on every write.
+   */
+  terminalScreenReader: boolean;
+  /**
    * Leave out changes that are only whitespace in diffs you read: a file's diff, a commit, and
    * a chat's changes. Diffs you stage from always show every change, since a patch without the
    * whitespace no longer applies.
@@ -514,6 +519,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   terminalFontFamily: "",
   editorFontSize: 13,
   terminalFontSize: 13,
+  terminalScreenReader: false,
   diffIgnoreWhitespace: false,
   diffFilesCollapsed: true,
   diffPalette: "theme",
@@ -1249,6 +1255,16 @@ export const SETTINGS_REGISTRY: readonly SettingMeta[] = [
     summary: "The terminal's font size, in pixels.",
     min: 8,
     max: 32,
+  },
+  {
+    key: "terminalScreenReader",
+    type: "boolean",
+    status: "live",
+    page: "appearance",
+    section: "Typography",
+    title: "Terminal screen reader support",
+    summary:
+      "Keep an accessible copy of the terminal's screen, for screen readers and other assistive tools.",
   },
   {
     key: "diffIgnoreWhitespace",

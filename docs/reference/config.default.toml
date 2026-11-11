@@ -322,6 +322,11 @@ editorFontSize = 13
 # everything else. (default: 13)
 terminalFontSize = 13
 
+# Keep an accessible copy of the terminal's screen, so a screen reader or an
+# assistive tool can read its lines and hear new output. Off by default: the
+# copy costs work on every write. (default: false)
+terminalScreenReader = false
+
 # Leave out changes that are only whitespace in diffs you read: a file's diff,
 # a commit, and a chat's changes. Diffs you stage from always show every
 # change, since a patch without the whitespace no longer applies. (default:

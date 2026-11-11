@@ -20,6 +20,7 @@ import type { AppSettings } from "../../lib/app-settings";
 import { settingMeta } from "../../lib/settings-sections";
 import { useScopedSetting } from "../../lib/use-scoped-setting";
 import { SettingsGroup, SettingsRow, SettingsSection } from "../layout/settings-layout";
+import { SettingSwitch } from "../layout/setting-controls";
 import { FontPicker } from "./font-picker";
 import { Select } from "@tryatlas/design";
 
@@ -140,6 +141,10 @@ export function TypographySection() {
         >
           <TerminalSample />
         </SettingsRow>
+        <SettingsRow
+          setting="terminalScreenReader"
+          control={<SettingSwitch setting="terminalScreenReader" />}
+        />
       </SettingsGroup>
     </SettingsSection>
   );

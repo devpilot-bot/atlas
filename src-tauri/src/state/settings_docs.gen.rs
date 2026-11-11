@@ -258,6 +258,10 @@ const SETTINGS_DOCS: &[(&str, &str)] = &[
         "# The terminal's font size, in pixels. The interface zoom scales it along with\n# everything else. (default: 13)",
     ),
     (
+        "terminalScreenReader",
+        "# Keep an accessible copy of the terminal's screen, so a screen reader or an\n# assistive tool can read its lines and hear new output. Off by default: the\n# copy costs work on every write. (default: false)",
+    ),
+    (
         "diffIgnoreWhitespace",
         "# Leave out changes that are only whitespace in diffs you read: a file's diff,\n# a commit, and a chat's changes. Diffs you stage from always show every\n# change, since a patch without the whitespace no longer applies. (default:\n# false)",
     ),

@@ -41,7 +41,7 @@ export function ModelPriceOverridesSection() {
       <SettingsGroup>
         <SettingsRow
           setting="modelPriceOverrides"
-          status="Atlas Agent gateway turns are metered against your account cap. These overrides have no effect there."
+          status="Atlas Agent turns are billed against your account cap. An override changes only the estimate shown for them."
         >
           <fieldset disabled={scoped.globalOnly} className="flex min-w-0 flex-col gap-4">
             {Object.entries(scoped.value).map(([id, price]) => (

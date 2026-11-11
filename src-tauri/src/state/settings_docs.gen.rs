@@ -331,7 +331,7 @@ const SETTINGS_DOCS: &[(&str, &str)] = &[
     ),
     (
         "modelPriceOverrides",
-        "# modelPriceOverrides: Per-model input, output, cacheRead and cacheWrite\n# prices in USD per million tokens. Replaces models.dev prices, including for\n# models absent from its catalog. Names match exactly, then without a provider\n# prefix, then without an eight-digit date suffix. All four rates are\n# required; zero is allowed. Atlas Agent gateway turns use the account cap;\n# overrides have no effect there. Example: modelPriceOverrides = { \"my-model\"\n# = { input = 1.0, output = 2.0, cacheRead = 0.1, cacheWrite = 0.2 } }. An\n# empty table uses models.dev prices.",
+        "# modelPriceOverrides: Per-model input, output, cacheRead and cacheWrite\n# prices in USD per million tokens. Replaces models.dev prices, including for\n# models absent from its catalog. Names match exactly, then without a provider\n# prefix, then without an eight-digit date suffix. All four rates are\n# required; zero is allowed. Atlas Agent turns are billed against the account\n# cap; an override changes only the estimate shown for them. Example:\n# modelPriceOverrides = { \"my-model\" = { input = 1.0, output = 2.0, cacheRead\n# = 0.1, cacheWrite = 0.2 } }. An empty table uses models.dev prices.",
     ),
 ];
 

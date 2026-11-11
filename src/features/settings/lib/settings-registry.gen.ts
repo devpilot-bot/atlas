@@ -440,10 +440,10 @@ export interface AppSettings {
    * Per-model input, output, cacheRead and cacheWrite prices in USD per million tokens.
    * Replaces models.dev prices, including for models absent from its catalog. Names match
    * exactly, then without a provider prefix, then without an eight-digit date suffix. All four
-   * rates are required; zero is allowed. Atlas Agent gateway turns use the account cap;
-   * overrides have no effect there. Example: modelPriceOverrides = { "my-model" = { input =
-   * 1.0, output = 2.0, cacheRead = 0.1, cacheWrite = 0.2 } }. An empty table uses models.dev
-   * prices.
+   * rates are required; zero is allowed. Atlas Agent turns are billed against the account cap;
+   * an override changes only the estimate shown for them. Example: modelPriceOverrides = {
+   * "my-model" = { input = 1.0, output = 2.0, cacheRead = 0.1, cacheWrite = 0.2 } }. An empty
+   * table uses models.dev prices.
    */
   modelPriceOverrides: ModelPriceOverrides;
 }
@@ -1436,6 +1436,6 @@ export const SETTINGS_REGISTRY: readonly SettingMeta[] = [
     page: "chat",
     section: "Cost estimates",
     title: "Model price overrides",
-    summary: "Your prices for ACP and bring-your-own-key sessions, in USD per million tokens.",
+    summary: "Your own per-model prices for cost estimates, in USD per million tokens.",
   },
 ];
